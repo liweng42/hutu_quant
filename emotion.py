@@ -29,13 +29,10 @@ class EmotionIndex(Hutu):
         """
         检测目录结构，不存在就创建
         """
-        # emotion_index 目录
+        # emotion_index_data 目录
         if not os.path.exists(const.emotion_index_data_root_path):
             os.makedirs(const.emotion_index_data_root_path)
             print('mkdir %s' % const.emotion_index_data_root_path)
-        if not os.path.exists(const.emotion_index_data_day_path):
-            os.makedirs(const.emotion_index_data_day_path)
-            print('mkdir %s' % const.emotion_index_data_day_path)
         print('emotion_index 目录检测完毕！')
 
     @utility.time_it
@@ -170,43 +167,20 @@ class EmotionIndex(Hutu):
 
     def calculate(self, trade_date):
         """
-        按日计算市场情绪指标，输入文件都是处理后的股票文件
-        先打开所有股票文件，取每个文件的trade_date一行数据，然后拼接成一个df，进行计算
-        最后输出一个trade_date 统计过的市场情绪基础指标
+        输入文件：trade_date维度的股票文件
+        输出：指数日期的市场情绪基础指标值
         """
-        # 输入股票列表文件，对每个股票文件循环取相同交易日期的行，然后拼接成一个新的df在计算
-        if not self.debug:
-            stock_list = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
-        else:
-            stock_list = pd.read_csv(const.DEBUG_DATA_STOCK_BASIC)
-        count = 1
-        # 读取处理过的第一个文件，要文件结构而已
-        filename = os.path.join(const.process_data_market_day_path,  '000001.SZ.csv')
-        tmp_df = pd.read_csv(filename)
+        filename = os.path.join(const.process_data_market_trade_date_day_path, str(trade_date) + '.csv')
+        df = pd.read_csv(filename)
         # print(tmp_df)
-        tmp_df.drop(tmp_df.index, inplace=True)
-        # print(tmp_df)
-        length = len(stock_list)
-        for index, row in stock_list.iterrows():
-            filename = os.path.join(const.process_data_market_day_path, row["ts_code"] + '.csv')
-            if os.path.exists(filename):
-                df = pd.read_csv(filename)
-                df = df[(df['trade_date'] == int(trade_date))]
-                if (len(df) > 0):
-                    tmp_df = tmp_df.append(df)
-                    # print(tmp_df)
-                    # print('文件：%s' % filename, end='\r')
-            # percent = round(1.00 * count / length * 100, 2)
-            # print('计算日期：%s, 进度 : %s [%d/%d]，code:%s' % ((trade_date, str(percent)+'%', count, length, row["ts_code"])), end='\r')
-            count = count + 1
-        # print(tmp_df)
-        self.rise = tmp_df['rise'].sum()
-        self.fall = tmp_df['fall'].sum()
-        self.rise_limit = tmp_df['rise_limit'].sum()
-        self.fall_limit = tmp_df['fall_limit'].sum()
-        self.rise_limit_count = len(tmp_df[(tmp_df['rise_limit_count'] > 1)])
-        self.ema24_up = len(tmp_df[(tmp_df['ema24_up'] > 0)])
-        self.ma120_up = len(tmp_df[(tmp_df['ma120_up'] > 0)])
+        # 统计市场情绪基础指标
+        self.rise = df['rise'].sum()
+        self.fall = df['fall'].sum()
+        self.rise_limit = df['rise_limit'].sum()
+        self.fall_limit = df['fall_limit'].sum()
+        self.rise_limit_count = len(df[(df['rise_limit_count'] > 1)])
+        self.ema24_up = len(df[(df['ema24_up'] > 0)])
+        self.ma120_up = len(df[(df['ma120_up'] > 0)])
         
         # 输入指数文件，取相应的值
         filename = os.path.join(const.process_data_index_day_path, const.CODE_INDEX_SH + '.csv')

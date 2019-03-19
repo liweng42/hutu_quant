@@ -78,13 +78,13 @@ process_data_index_week_path = os.path.join(process_data_root_path, 'index/week'
 process_data_market_day_path = os.path.join(process_data_root_path, 'market/day')
 # 行情数据 -- 周K线文件目录
 process_data_market_week_path = os.path.join(process_data_root_path, 'market/week')
+# 行情数据 -- trade_date维度文件目录，以交易日期为单个文件的所有股票日行情
+process_data_market_trade_date_day_path = os.path.join(process_data_root_path, 'market/trade_date_day')
 # 市场参考数据目录
 process_data_ref_path = os.path.join(process_data_root_path, 'ref')
 
 # 市场情绪指标根目录
-emotion_index_data_root_path = os.path.join(os.getcwd(), 'emotion_index')
-# 情绪指标中间数据目录
-emotion_index_data_day_path = os.path.join(emotion_index_data_root_path, 'day')
+emotion_index_data_root_path = os.path.join(os.getcwd(), 'emotion_index_data')
 
 # Debug 数据文件目录
 debug_data_root_path = os.path.join(os.getcwd(), 'debug_data')

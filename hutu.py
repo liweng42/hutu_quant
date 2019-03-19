@@ -123,9 +123,40 @@ class Hutu():
             df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
         # print(self.debug)
         df = df.sort_values(by=['cal_date'])
+        df = df[(df['is_open'] > 0)]
         start_date = df['cal_date'].values[0]
         print(start_date)
         return str(start_date)
+
+    def get_cal_end_date(self):
+        """
+        获取交易日历文件的结束日期
+        """
+        if self.debug:
+            df = pd.read_csv(const.DEBUG_DATA_STOCK_TRADE_CAL)
+        else:
+            df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
+        # print(self.debug)
+        df = df[(df['is_open'] > 0)]
+        end_date = df['cal_date'].values[0]
+        print(end_date)
+        return str(end_date)
+
+    def get_cal_open_list(self):
+        """
+        获得开市的交易日期list
+        """
+        if self.debug:
+            df = pd.read_csv(const.DEBUG_DATA_STOCK_TRADE_CAL)
+        else:
+            df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
+        # print(self.debug)
+        df = df[(df['is_open'] > 0)]
+        list = []
+        for index, row in df.iterrows():
+            list.append(row['cal_date'])
+        list.sort()
+        return list
 
     def drop_duplicates(self, path):
         """
@@ -150,4 +181,4 @@ class Hutu():
                 count = count + 1
 
 # hutu = Hutu()
-# hutu.get_update_duration()
+# hutu.get_cal_end_date()
