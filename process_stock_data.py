@@ -7,6 +7,7 @@ import talib
 import os
 import stock_const as const
 import utility
+from stock_data_repo import StockDataRepo
 
 
 class ProcessStockData(Hutu):
@@ -56,10 +57,10 @@ class ProcessStockData(Hutu):
         """
         print('\n=====ProcessStockData run_only_once start=====', end='\n')
         print('开始时间：%s' % datetime.now(), end='\n')
-        # 计算一般指标数据
-        self.compute_stock_indicators()
-        # 一定最后处理指数数据
-        self.compute_index_indicators()
+        # # 计算一般指标数据
+        # self.compute_stock_indicators()
+        # # 一定最后处理指数数据
+        # self.compute_index_indicators()
         # 生成trade_date维度的股票数据文件
         self.only_once_generate_trade_date_day_file()
         print('\n结束时间：%s' % datetime.now(), end='\n')
@@ -208,6 +209,7 @@ class ProcessStockData(Hutu):
     def generate_trade_date_day_file(self, trade_date):
         """
         生成以trade_date维度的文件，即每日一个股票文件，包含当日交易的所有股票数据
+        为了提高程序效率，需要在第一次读取股票文件之后，将其存入内存中，下次直接从内存中取
         """
         # 输入股票列表文件，对每个股票文件循环取相同交易日期的行，然后拼接成一个新的df在计算
         if not self.debug:
@@ -216,20 +218,28 @@ class ProcessStockData(Hutu):
             stock_list = pd.read_csv(const.DEBUG_DATA_STOCK_BASIC)
 
         # 读取处理过的第一个文件，要文件结构而已，此时的文件包含计算过的数据指标列
-        filename = os.path.join(const.process_data_market_day_path,  '000001.SZ.csv')
-        tmp_df = pd.read_csv(filename)
+        sdr = StockDataRepo()
+        tmp_df = sdr.get_process_data_market_day_data('000001.SZ')
+        # print(tmp_df)
+        # filename = os.path.join(const.process_data_market_day_path,  '000001.SZ.csv')
+        # tmp_df = pd.read_csv(filename)
         # print(tmp_df)
         tmp_df.drop(tmp_df.index, inplace=True)
         # print(tmp_df)
         for index, row in stock_list.iterrows():
-            filename = os.path.join(const.process_data_market_day_path, row["ts_code"] + '.csv')
-            if os.path.exists(filename):
-                df = pd.read_csv(filename)
+            # filename = os.path.join(const.process_data_market_day_path, row["ts_code"] + '.csv')            
+            # if os.path.exists(filename):
+            #     df = pd.read_csv(filename)
+            #     df = df[(df['trade_date'] == int(trade_date))]
+            #     if (len(df) > 0):
+            #         tmp_df = tmp_df.append(df)
+            #         # print(tmp_df)
+            #         # print('文件：%s' % filename, end='\r')
+            df = sdr.get_process_data_market_day_data(row["ts_code"])
+            if df is not None:
                 df = df[(df['trade_date'] == int(trade_date))]
                 if (len(df) > 0):
                     tmp_df = tmp_df.append(df)
-                    # print(tmp_df)
-                    # print('文件：%s' % filename, end='\r')
         p_filename = os.path.join(const.process_data_market_trade_date_day_path, str(trade_date) + '.csv')
         if (len(tmp_df) > 0):
             tmp_df.to_csv(p_filename, index=False)

@@ -115,7 +115,7 @@ class Hutu():
 
     def get_cal_start_date(self):
         """
-        获取交易日历文件的起始日期
+        获取交易日历文件的起始日期，从2005-01-01开始即可
         """
         if self.debug:
             df = pd.read_csv(const.DEBUG_DATA_STOCK_TRADE_CAL)
@@ -123,7 +123,7 @@ class Hutu():
             df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
         # print(self.debug)
         df = df.sort_values(by=['cal_date'])
-        df = df[(df['is_open'] > 0)]
+        df = df[(df['cal_date'] > 20050101) & (df['is_open'] > 0)]
         start_date = df['cal_date'].values[0]
         print(start_date)
         return str(start_date)
@@ -144,14 +144,14 @@ class Hutu():
 
     def get_cal_open_list(self):
         """
-        获得开市的交易日期list
+        获得开市的交易日期list，从2005-01-01开始即可
         """
         if self.debug:
             df = pd.read_csv(const.DEBUG_DATA_STOCK_TRADE_CAL)
         else:
             df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
         # print(self.debug)
-        df = df[(df['is_open'] > 0)]
+        df = df[(df['cal_date'] > 20050101) & (df['is_open'] > 0)]
         list = []
         for index, row in df.iterrows():
             list.append(row['cal_date'])
