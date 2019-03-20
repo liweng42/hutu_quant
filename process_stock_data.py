@@ -126,18 +126,26 @@ class ProcessStockData(Hutu):
             else:
                 stock_data['ema' + str(ema)] = 0
         # 调用talib计算MACD指标
-        stock_data['diff'], stock_data['dea'], stock_data['macd'] = talib.MACD(
-            np.array(close),
-            fastperiod=12,
-            slowperiod=26,
-            signalperiod=9
-            )
-        stock_data['diff'] = round(stock_data['diff'], 2)
-        stock_data['dea'] = round(stock_data['dea'], 2)
-        stock_data['macd'] = round(2*(round(stock_data['diff'], 3)-round(stock_data['dea'], 3)), 2)        
+        if (len(close) >= 26):
+            stock_data['diff'], stock_data['dea'], stock_data['macd'] = talib.MACD(
+                np.array(close),
+                fastperiod=12,
+                slowperiod=26,
+                signalperiod=9
+                )
+            stock_data['diff'] = round(stock_data['diff'], 2)
+            stock_data['dea'] = round(stock_data['dea'], 2)
+            stock_data['macd'] = round(2*(round(stock_data['diff'], 3)-round(stock_data['dea'], 3)), 2)
+        else:
+            stock_data['diff'] = 0
+            stock_data['dea'] = 0
+            stock_data['macd'] = 0
         # 调用talib计算rsi指标
-        stock_data['rsi1'] = talib.RSI(np.array(close), timeperiod=6)
-        stock_data['rsi1'] = round(stock_data['rsi1'], 2)
+        if (len(close) >= 6):
+            stock_data['rsi1'] = talib.RSI(np.array(close), timeperiod=6)
+            stock_data['rsi1'] = round(stock_data['rsi1'], 2)
+        else:
+            stock_data['rsi1'] = 0
         # 不是指数计算下面的指标
         if not is_index:
             # 上涨
