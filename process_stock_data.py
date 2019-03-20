@@ -61,6 +61,7 @@ class ProcessStockData(Hutu):
         # self.compute_stock_indicators()
         # # 一定最后处理指数数据
         # self.compute_index_indicators()
+        self.set_process_data_market_stock_to_redis()
         # 生成trade_date维度的股票数据文件
         self.only_once_generate_trade_date_day_file()
         print('\n结束时间：%s' % datetime.now(), end='\n')
@@ -92,6 +93,27 @@ class ProcessStockData(Hutu):
         else:
             print('\n没有需要处理的数据', end='\n')
             return False
+
+    def set_process_data_market_stock_to_redis(self):
+        """
+        将所有process_data_market_day股票日K线统统存入redis
+        """
+        print('\n=====set_process_data_market_stock_to_redis start=====', end='\n')
+        print('开始时间：%s' % datetime.now(), end='\n')        
+        if not self.debug:
+            stock_list = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
+        else:
+            stock_list = pd.read_csv(const.DEBUG_DATA_STOCK_BASIC)
+        sdr = StockDataRepo()
+        count = 1
+        length = len(stock_list)
+        for index, row in stock_list.iterrows():
+            sdr.set_process_data_market_day_data(row['ts_code'])
+            percent = round(1.00 * count / length * 100, 2)
+            print('进度 : %s [%d/%d]' % (str(percent)+'%', count, length), end='\r')
+            count = count + 1
+        print('\n结束时间：%s' % datetime.now(), end='\n')
+        print('=====set_process_data_market_stock_to_redis done!=====', end='\n')            
 
     def compute_indicators(self, stock_data, is_index):
         """
@@ -243,7 +265,7 @@ class ProcessStockData(Hutu):
         p_filename = os.path.join(const.process_data_market_trade_date_day_path, str(trade_date) + '.csv')
         if (len(tmp_df) > 0):
             tmp_df.to_csv(p_filename, index=False)
-            # print(tmp_df)
+            print('\n文件：%s' % p_filename, end='\n')
 
     @utility.time_it
     def compute_index_indicators(self):

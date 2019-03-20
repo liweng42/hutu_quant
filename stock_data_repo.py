@@ -28,3 +28,12 @@ class StockDataRepo:
                 return None
         else:
             return pd.read_msgpack(self.redis_cli.get(ts_code))
+
+    def set_process_data_market_day_data(self, ts_code):
+        """
+        set股票日K线数据
+        """
+        filename = os.path.join(const.process_data_market_day_path, ts_code + '.csv')
+        if os.path.exists(filename):
+            df = pd.read_csv(filename)
+            self.redis_cli.set(ts_code, df.to_msgpack(compress='zlib'))
