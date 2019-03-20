@@ -101,23 +101,45 @@ class ProcessStockData(Hutu):
         # 将数据按照交易日期从远到近排序
         stock_data = stock_data.sort_values(by=['trade_date'])
         # print(stock_data)
-        close = [float(x) for x in stock_data['close']]
+        close = [float(x) for x in stock_data['close']]                                      
         # 分别计算5日、20日、60日 120日 250日的移动平均线
         ma_list = [5, 20, 60, 120, 250]
         # 计算简单算术移动平均线MA - 注意：stock_data['close']为股票每天的收盘价
         for ma in ma_list:
             # stock_data['ma' + str(ma)] = stock_data['close'].rolling(ma).mean()
             # 调用talib计算日移动平均线的值
-            stock_data['ma' + str(ma)] = talib.MA(np.array(close), timeperiod=ma)
-            stock_data['ma' + str(ma)] = round(stock_data['ma' + str(ma)], 2)
+            # 这里要注意，有的新股上市日期短，无法计算出 5日以及其他均线价格，如果计算则 talib.ma会报错
+            # Exception: inputs are all NaN            
+            if (len(close) >= ma):
+                stock_data['ma' + str(ma)] = talib.MA(np.array(close), timeperiod=ma)
+                stock_data['ma' + str(ma)] = round(stock_data['ma' + str(ma)], 2)
+            else:
+                stock_data['ma' + str(ma)] = 0
         # 计算指数平滑移动平均线EMA
         ema_list = [17, 24, 50]
         for ema in ema_list:
             # stock_data['ema' + str(ema)] = stock_data['close'].ewm(span=ema).mean()    
             # 调用talib计算指数移动平均线的值
-            stock_data['ema' + str(ema)] = talib.EMA(np.array(close), timeperiod=ema)
-            stock_data['ema' + str(ema)] = round(stock_data['ema' + str(ema)], 2)
+            if (len(close) >= ema):
+                stock_data['ema' + str(ema)] = talib.EMA(np.array(close), timeperiod=ema)
+                stock_data['ema' + str(ema)] = round(stock_data['ema' + str(ema)], 2)
+            else:
+                stock_data['ema' + str(ema)] = 0
         # 调用talib计算MACD指标
+        # if (len(close) >= 26):
+        #     stock_data['diff'], stock_data['dea'], stock_data['macd'] = talib.MACD(
+        #         np.array(close),
+        #         fastperiod=12,
+        #         slowperiod=26,
+        #         signalperiod=9
+        #         )
+        #     stock_data['diff'] = round(stock_data['diff'], 2)
+        #     stock_data['dea'] = round(stock_data['dea'], 2)
+        #     stock_data['macd'] = round(2*(round(stock_data['diff'], 3)-round(stock_data['dea'], 3)), 2)
+        # else:
+        #     stock_data['diff'] = 0
+        #     stock_data['dea'] = 0
+        #     stock_data['macd'] = 0
         stock_data['diff'], stock_data['dea'], stock_data['macd'] = talib.MACD(
             np.array(close),
             fastperiod=12,
@@ -126,11 +148,15 @@ class ProcessStockData(Hutu):
             )
         stock_data['diff'] = round(stock_data['diff'], 2)
         stock_data['dea'] = round(stock_data['dea'], 2)
-        stock_data['macd'] = round(2*(round(stock_data['diff'], 3)-round(stock_data['dea'], 3)), 2)
+        stock_data['macd'] = round(2*(round(stock_data['diff'], 3)-round(stock_data['dea'], 3)), 2)        
         # 调用talib计算rsi指标
+        # if (len(close) >= 6):
+        #     stock_data['rsi1'] = talib.RSI(np.array(close), timeperiod=6)
+        #     stock_data['rsi1'] = round(stock_data['rsi1'], 2)
+        # else:
+        #     stock_data['rsi1'] = 0
         stock_data['rsi1'] = talib.RSI(np.array(close), timeperiod=6)
         stock_data['rsi1'] = round(stock_data['rsi1'], 2)
-
         # 不是指数计算下面的指标
         if not is_index:
             # 上涨
@@ -168,6 +194,7 @@ class ProcessStockData(Hutu):
 
         # 将数据按照交易日期从近到远排序
         stock_data = stock_data.sort_values(by=['trade_date'], ascending=False)
+        # stock_data = stock_data.fillna(0)
         return stock_data
 
     @utility.time_it
