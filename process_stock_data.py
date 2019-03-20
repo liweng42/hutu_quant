@@ -126,20 +126,6 @@ class ProcessStockData(Hutu):
             else:
                 stock_data['ema' + str(ema)] = 0
         # 调用talib计算MACD指标
-        # if (len(close) >= 26):
-        #     stock_data['diff'], stock_data['dea'], stock_data['macd'] = talib.MACD(
-        #         np.array(close),
-        #         fastperiod=12,
-        #         slowperiod=26,
-        #         signalperiod=9
-        #         )
-        #     stock_data['diff'] = round(stock_data['diff'], 2)
-        #     stock_data['dea'] = round(stock_data['dea'], 2)
-        #     stock_data['macd'] = round(2*(round(stock_data['diff'], 3)-round(stock_data['dea'], 3)), 2)
-        # else:
-        #     stock_data['diff'] = 0
-        #     stock_data['dea'] = 0
-        #     stock_data['macd'] = 0
         stock_data['diff'], stock_data['dea'], stock_data['macd'] = talib.MACD(
             np.array(close),
             fastperiod=12,
@@ -150,11 +136,6 @@ class ProcessStockData(Hutu):
         stock_data['dea'] = round(stock_data['dea'], 2)
         stock_data['macd'] = round(2*(round(stock_data['diff'], 3)-round(stock_data['dea'], 3)), 2)        
         # 调用talib计算rsi指标
-        # if (len(close) >= 6):
-        #     stock_data['rsi1'] = talib.RSI(np.array(close), timeperiod=6)
-        #     stock_data['rsi1'] = round(stock_data['rsi1'], 2)
-        # else:
-        #     stock_data['rsi1'] = 0
         stock_data['rsi1'] = talib.RSI(np.array(close), timeperiod=6)
         stock_data['rsi1'] = round(stock_data['rsi1'], 2)
         # 不是指数计算下面的指标
@@ -194,7 +175,8 @@ class ProcessStockData(Hutu):
 
         # 将数据按照交易日期从近到远排序
         stock_data = stock_data.sort_values(by=['trade_date'], ascending=False)
-        # stock_data = stock_data.fillna(0)
+        # 将空白Nan值全部填成0
+        stock_data = stock_data.fillna(0)
         return stock_data
 
     @utility.time_it
