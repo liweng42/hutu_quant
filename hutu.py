@@ -79,7 +79,7 @@ class Hutu():
 
     def get_last_update_time(self, filename):
         """
-        根据市场情绪指数源文件判断最后更新日期
+        根据源文件判断最后更新日期
         """
         if os.path.exists(filename):
             df = pd.read_csv(filename)

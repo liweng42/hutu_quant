@@ -79,7 +79,7 @@ class HutuTrade():
         plt.legend(loc=2)
 
         ax2 = ax1.twinx()
-        ax2.plot(stock_data['trade_date'], stock_data['v'], label='emotion_index')
+        ax2.plot(stock_data['trade_date'], stock_data['v_5'], label='emotion_index')
         plt.legend(loc=1)
 
         ax1.set_xlabel('trade_date')

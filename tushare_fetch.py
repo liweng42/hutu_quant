@@ -294,16 +294,19 @@ class TushareFetch(Hutu):
                 # 存在文件追加数据行
                 if os.path.exists(filename):
                     stock_data = pd.read_csv(filename)
-                    df.index = [len(stock_data)-1]  # 索引值计算，不计算也没问题
-                    # print(df)
-                    stock_data = df.append(stock_data)
-                    # print(stock_data)
-                    stock_data.to_csv(
-                        filename,
-                        index=False,
-                        columns=const.COLUMNS
-                        )
-                    print('%s 数据更新成功' % li, end='\r')
+                    # 检查是否存在该日期
+                    tmp_df = stock_data[(stock_data['trade_date'] == int(trade_date))]
+                    if (len(tmp_df) <= 0):  # 不存在则追加                    
+                        df.index = [len(stock_data)-1]  # 索引值计算，不计算也没问题
+                        # print(df)
+                        stock_data = df.append(stock_data)
+                        # print(stock_data)
+                        stock_data.to_csv(
+                            filename,
+                            index=False,
+                            columns=const.COLUMNS
+                            )
+                        print('%s 数据更新成功' % li, end='\r')
                     # print('文件：%s' % filename)
                 else:
                     # print('没有相关数据文件: ' % filename)
@@ -330,18 +333,21 @@ class TushareFetch(Hutu):
                 # 存在文件追加数据行
                 if os.path.exists(filename):
                     stock_data = pd.read_csv(filename)
-                    copy_df_row = df.loc[[index]]  # 这里是dataframe
-                    copy_df_row.index = [len(stock_data)-1]  # 索引值计算，不计算也没问题
-                    # print(copy_df_row)
-                    stock_data = copy_df_row.append(stock_data)
-                    # print(stock_data)
-                    stock_data.to_csv(
-                        filename,
-                        index=False,
-                        columns=const.COLUMNS
-                        )
-                    print('%s 数据更新成功' % row['ts_code'], end='\r')
-                    # print('文件：%s' % filename)
+                    # 检查是否存在该日期
+                    tmp_df = stock_data[(stock_data['trade_date'] == int(trade_date))]
+                    if (len(tmp_df) <= 0):  # 不存在则追加
+                        copy_df_row = df.loc[[index]]  # 这里是dataframe
+                        copy_df_row.index = [len(stock_data)-1]  # 索引值计算，不计算也没问题
+                        # print(copy_df_row)
+                        stock_data = copy_df_row.append(stock_data)
+                        # print(stock_data)
+                        stock_data.to_csv(
+                            filename,
+                            index=False,
+                            columns=const.COLUMNS
+                            )
+                        print('%s 数据更新成功' % row['ts_code'], end='\r')
+                        # print('文件：%s' % filename)
                 else:
                     # print('没有相关数据文件: ' % filename)
                     pass
