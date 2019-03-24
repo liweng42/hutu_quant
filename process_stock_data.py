@@ -57,10 +57,10 @@ class ProcessStockData(Hutu):
         """
         print('\n=====ProcessStockData run_only_once start=====', end='\n')
         print('开始时间：%s' % datetime.now(), end='\n')
-        # # 计算一般指标数据
-        # self.compute_stock_indicators()
-        # # 一定最后处理指数数据
-        # self.compute_index_indicators()
+        # 计算一般指标数据
+        self.compute_stock_indicators()
+        # 一定最后处理指数数据
+        self.compute_index_indicators()
         self.set_process_data_market_stock_to_redis()
         # 生成trade_date维度的股票数据文件
         self.only_once_generate_trade_date_day_file()

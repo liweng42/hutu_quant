@@ -21,8 +21,8 @@ class HutuTrade():
         """
         初始化下载形成origin文件，初始化处理计算各个指标形成process文件，初始化计算emotion指标形成emotion文件
         """
-        # t = TushareFetch()
-        # t.run_only_once()
+        t = TushareFetch()
+        t.run_only_once()
         p = ProcessStockData()
         p.run_only_once()
         e = EmotionIndex()
@@ -92,8 +92,8 @@ class HutuTrade():
 
 if __name__ == '__main__':
     hutu_trade = HutuTrade()
-    hutu_trade.run_only_once()
-    # hutu_trade.run_daily_job()
+    # hutu_trade.run_only_once()
+    hutu_trade.run_daily_job()
     # hutu_trade.show_emotion_plot()
     # t = TushareFetch()
     # t.get_cal_start_date()
