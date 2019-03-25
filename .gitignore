@@ -22,3 +22,4 @@ htmlcov
 /origin_data
 /process_data
 /emotion_index_data
+*.tar.gz
