@@ -93,8 +93,8 @@ class HutuTrade():
 if __name__ == '__main__':
     hutu_trade = HutuTrade()
     # hutu_trade.run_only_once()
-    # hutu_trade.run_daily_job()
-    hutu_trade.show_emotion_plot()
+    hutu_trade.run_daily_job()
+    # hutu_trade.show_emotion_plot()
     # t = TushareFetch()
     # t.get_cal_start_date()
 
