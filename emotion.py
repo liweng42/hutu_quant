@@ -54,20 +54,28 @@ class EmotionIndex(Hutu):
         df = df[(df['cal_date'] > 20050101) & (df['is_open'] > 0)]
         # 升序排列日期
         df = df.sort_values(by=['cal_date'])
+        date_list = []
+        for index, row in df.iterrows():
+            date_list.append(row['cal_date'])
+        date_list.sort()
+        # 判断当前时间，如果在下午16点20分后，可以计算当天日期，否则排除当天日期
+        d1 = datetime.strptime(str(datetime.now().date())+'16:20', '%Y-%m-%d%H:%M')
+        if datetime.now() < d1 and int(self.today_date) in date_list:
+            date_list.remove(int(self.today_date))
         # print(df)
         # 读取样本文件，获取数据格式
         emotion_df = pd.read_csv(const.SAMPLE_EMOTION_BASIC)
         emotion_df.drop(emotion_df.index, inplace=True)
         filename = os.path.join(const.emotion_index_data_root_path, 'emotion_basic.csv')
         count = 1
-        length = len(df)
-        for index, row in df.iterrows():
-            emotion_df = emotion_df.append(self.calculate(row['cal_date']))
+        length = len(date_list)
+        for date in date_list:
+            emotion_df = emotion_df.append(self.calculate(date))
             # print(emotion_df)
             emotion_df = emotion_df.sort_values(by=['trade_date'], ascending=False)
             emotion_df.to_csv(filename, index=False, columns=const.EMOTION_BASIC_COLUMNS)
             percent = round(1.00 * count / length * 100, 2)
-            print('计算日期：%s, 进度 : %s [%d/%d]' % ((row['cal_date'], str(percent)+'%', count, length)), end='\r')
+            print('计算日期：%s, 进度 : %s [%d/%d]' % ((date, str(percent)+'%', count, length)), end='\r')
             count = count + 1
         time.sleep(1)
         # 计算市场情绪指标文件
@@ -90,6 +98,7 @@ class EmotionIndex(Hutu):
         for date in date_list:
             # 更新emotion_basic文件
             self.update_emotion_basic(date)
+            time.sleep(0.5)
             percent = round(1.00 * count / length * 100, 2)
             print('计算日期：%s, 进度 : %s [%d/%d]' % ((date, str(percent)+'%', count, length)), end='\r')
             count = count + 1
