@@ -36,7 +36,7 @@ COLUMNS = ['ts_code', 'trade_date', 'open', 'high', 'low', 'close', 'pre_close',
 # 指标列
 INDICATOR_COLUMNS = ['ma5', 'ma20', 'ma60', 'ma120', 'ma250', 'ema17', 'ema24', 'ema50', 'diff', 'dea', 'macd', 'rsi1']
 # 情绪指标基本列
-EMOTION_BASIC_COLUMNS = ['trade_date', 'close', 'pct_chg', 'vol', 'ema24', 'ma120', 'ma250', 'rise', 'fall', 'rise_limit', 'fall_limit', 'rise_limit_count', 'ema24_up', 'ma120_up']
+EMOTION_BASIC_COLUMNS = ['trade_date', 'close', 'pct_chg', 'vol', 'ema24', 'ma120', 'ma250', 'rise', 'fall', 'rise_limit', 'fall_limit', 'rise_limit_count', 'ema24_up', 'ma120_up', 'north_money']
 # 情绪指标列
 EMOTION_INDEX_COLUMNS = ['v', 'v_5']
 

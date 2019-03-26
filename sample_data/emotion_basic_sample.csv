@@ -1,2 +1,2 @@
-trade_date,close,pct_chg,vol,ema24,ma120,ma250,rise,fall,rise_limit,fall_limit,rise_limit_count,ema24_up,ma120_up
-20190314,2990.685,-1.1981,373141798,2909.21,2666.9,2832.95,533,3018,35,84,10,3173,3311
+trade_date,close,pct_chg,vol,ema24,ma120,ma250,rise,fall,rise_limit,fall_limit,rise_limit_count,ema24_up,ma120_up,north_money
+20190314,2990.685,-1.1981,373141798,2909.21,2666.9,2832.95,533,3018,35,84,10,3173,3311,2795.41

@@ -160,7 +160,7 @@ class EmotionIndex(Hutu):
         emotion_df['ma120_up_5'] = emotion_df['ma120_up'].rolling(5).mean()
         emotion_df['ma120_up_v'] = round(emotion_df['ma120_up'] / emotion_df['ma120_up_5'], 2) * 3
         emotion_df['north_money_5'] = emotion_df['north_money'].rolling(5).mean()
-        emotion_df['north_money_v'] = round(emotion_df['north_money'] / emotion_df['north_money_5'], 2) * 4
+        emotion_df['north_money_v'] = np.where(emotion_df['north_money'] > emotion_df['north_money_5'], 1, -1) * 4
         # 用 0 填补 Nan
         emotion_df = emotion_df.fillna(0)
         # 最后计算平均值，一共11个因子
@@ -213,6 +213,8 @@ class EmotionIndex(Hutu):
         df = df[(df['trade_date'] == int(trade_date))]
         if (len(df) > 0):
             self.north_money = df['north_money'].values[0]
+        else:
+            self.north_money = 0
                   
         output_df = pd.DataFrame(
             {
