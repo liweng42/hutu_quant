@@ -97,7 +97,7 @@ class TushareFetch(Hutu):
                 print('更新日期：%s' % date, end='\n')
                 self.daily_job_stock_daily_by_date(date)
                 # 下载沪深港通数据
-                self.daily_job_hsgt_data(date, date)
+                self.daily_job_hsgt_data(date)
                 # 一定最后更新指数数据，以便下次更新时检测最后更新日期
                 self.daily_job_index_daily_by_date(date)
             # 指数数据去重
@@ -280,7 +280,7 @@ class TushareFetch(Hutu):
         print('=====获取沪深港通的日数据 done!=====', end='\n')
 
     @utility.time_it
-    def daily_job_hsgt_data(self, start_date, end_date):
+    def daily_job_hsgt_data(self, trade_date):
         """
         更新沪深港通的日数据
         """
@@ -290,11 +290,12 @@ class TushareFetch(Hutu):
         df = pd.read_csv(filename)
         # 升序
         df = df.sort_values(by=['trade_date'])
-        new_data = self.pro.moneyflow_hsgt(start_date=start_date, end_date=end_date)
+        new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
+        print(new_data)
         df = df.append(new_data)
         # 降序
         df = df.sort_values(by=['trade_date'], ascending=False)
-        df.to_csv(filename, index=False)
+        # df.to_csv(filename, index=False)
         print('\n结束时间：%s' % datetime.now(), end='\n')
         print('=====更新沪深港通的日数据 done!=====', end='\n')
 
