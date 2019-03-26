@@ -187,9 +187,9 @@ class EmotionIndex(Hutu):
         self.fall = df['fall'].sum()
         self.rise_limit = df['rise_limit'].sum()
         self.fall_limit = df['fall_limit'].sum()
-        self.rise_limit_count = df[(df['rise_limit_count'] >= 2)].count()
-        self.ema24_up = df[(df['ema24_up'] > 0)].count()
-        self.ma120_up = df[(df['ma120_up'] > 0)].count()
+        self.rise_limit_count = len(df[(df['rise_limit_count'] > 1)])
+        self.ema24_up = len(df[(df['ema24_up'] > 0)])
+        self.ma120_up = len(df[(df['ma120_up'] > 0)])
         
         # 输入指数文件，取相应的值
         filename = os.path.join(const.process_data_index_day_path, const.CODE_INDEX_SH + '.csv')
