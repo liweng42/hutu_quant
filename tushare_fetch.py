@@ -87,7 +87,7 @@ class TushareFetch(Hutu):
             # 更新股票基础资料
             self.get_stock_basic()
             # 更新到当前日期的交易日历
-            self.get_stock_trade_cal(self.today_date)
+            self.get_stock_trade_cal(self.today_date)         
             time.sleep(1)
         # 计算从 last_update_time 到今天以来的需要更新日期
         date_list = self.get_update_duration()
@@ -96,6 +96,8 @@ class TushareFetch(Hutu):
                 # 更新股票数据
                 print('更新日期：%s' % date, end='\n')
                 self.daily_job_stock_daily_by_date(date)
+                # 下载沪深港通数据
+                self.daily_job_hsgt_data(self.last_update_time, date)
                 # 一定最后更新指数数据，以便下次更新时检测最后更新日期
                 self.daily_job_index_daily_by_date(date)
             # 指数数据去重
@@ -276,6 +278,25 @@ class TushareFetch(Hutu):
         hsgt.to_csv(filename, index=False)
         print('\n结束时间：%s' % datetime.now(), end='\n')
         print('=====获取沪深港通的日数据 done!=====', end='\n')
+
+    @utility.time_it
+    def daily_job_hsgt_data(self, start_date, end_date):
+        """
+        更新沪深港通的日数据
+        """
+        print('\n=====更新沪深港通的日数据=====', end='\n')
+        print('开始时间：%s' % datetime.now(), end='\n')
+        filename = const.ORIGIN_DATA_MONEYFLOW_HSGT
+        df = pd.read_csv(filename)
+        # 升序
+        df = df.sort_values(by=['trade_date'])
+        new_data = self.pro.moneyflow_hsgt(start_date=start_date, end_date=end_date)
+        df = df.append(new_data)
+        # 降序
+        df = df.sort_values(by=['trade_date'], ascending=False)
+        df.to_csv(filename, index=False)
+        print('\n结束时间：%s' % datetime.now(), end='\n')
+        print('=====更新沪深港通的日数据 done!=====', end='\n')
 
     @utility.time_it
     def daily_job_index_daily_by_date(self, trade_date=None):

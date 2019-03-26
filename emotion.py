@@ -159,12 +159,16 @@ class EmotionIndex(Hutu):
         emotion_df['ema24_up_v'] = round(emotion_df['ema24_up'] / emotion_df['ema24_up_5'], 2) * 4
         emotion_df['ma120_up_5'] = emotion_df['ma120_up'].rolling(5).mean()
         emotion_df['ma120_up_v'] = round(emotion_df['ma120_up'] / emotion_df['ma120_up_5'], 2) * 3
+        emotion_df['north_money_5'] = emotion_df['north_money'].rolling(5).mean()
+        emotion_df['north_money_v'] = round(emotion_df['north_money'] / emotion_df['north_money_5'], 2) * 4
         # 用 0 填补 Nan
         emotion_df = emotion_df.fillna(0)
-        # 最后计算平均值
+        # 最后计算平均值，一共11个因子
+        count = 11
         emotion_df['v'] = emotion_df['pct_chg_v'] + emotion_df['vol_v'] + emotion_df['ema24_on_v'] + emotion_df['ma120_on_v'] + emotion_df['ma250_on_v']
         emotion_df['v'] = emotion_df['v'] + emotion_df['rise_fall_v'] + emotion_df['rise_limit_fall_limit_v'] + emotion_df['rise_limit_count_v'] + emotion_df['ema24_up_v'] + emotion_df['ma120_up_v'] 
-        emotion_df['v'] = round(emotion_df['v']/10, 2)
+        emotion_df['v'] = emotion_df['v'] + emotion_df['north_money_v']
+        emotion_df['v'] = round(emotion_df['v']/count, 2)
         emotion_df['v_5'] = emotion_df['v'].rolling(5).mean()
         p_filename = os.path.join(const.emotion_index_data_root_path, 'emotion_index.csv')
         columns = const.EMOTION_INDEX_COLUMNS.extend(const.EMOTION_BASIC_COLUMNS)
@@ -203,7 +207,13 @@ class EmotionIndex(Hutu):
             self.ema24 = df['ema24'].values[0]
             self.ma120 = df['ma120'].values[0]
             self.ma250 = df['ma250'].values[0]
-      
+
+        # 输入沪深港通文件，取北向资金值
+        df = pd.read_csv(const.ORIGIN_DATA_MONEYFLOW_HSGT)
+        df = df[(df['trade_date'] == int(trade_date))]
+        if (len(df) > 0):
+            self.north_money = df['north_money'].values[0]
+                  
         output_df = pd.DataFrame(
             {
                 'trade_date': [self.trade_date],
@@ -219,7 +229,8 @@ class EmotionIndex(Hutu):
                 'fall_limit': [self.fall_limit],
                 'rise_limit_count': [self.rise_limit_count],
                 'ema24_up': [self.ema24_up],
-                'ma120_up': [self.ma120_up]
+                'ma120_up': [self.ma120_up],
+                'north_money': [self.north_money]
             })
         # print(output_df)
         return output_df
