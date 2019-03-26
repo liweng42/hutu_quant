@@ -97,7 +97,7 @@ class TushareFetch(Hutu):
                 print('更新日期：%s' % date, end='\n')
                 self.daily_job_stock_daily_by_date(date)
                 # 下载沪深港通数据
-                self.daily_job_hsgt_data(self.last_update_time, date)
+                self.daily_job_hsgt_data(date, date)
                 # 一定最后更新指数数据，以便下次更新时检测最后更新日期
                 self.daily_job_index_daily_by_date(date)
             # 指数数据去重
