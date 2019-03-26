@@ -98,8 +98,8 @@ if __name__ == '__main__':
     # t = TushareFetch()
     # t.get_cal_start_date()
 
-    # e = EmotionIndex()
-    # e.run_only_once()
-    t = TushareFetch()
-    t.only_once_hsgt_data()
+    e = EmotionIndex()
+    e.run_only_once()
+    # t = TushareFetch()
+    # t.only_once_hsgt_data()
     
