@@ -68,6 +68,13 @@ class HutuTrade():
         t = TushareFetch()
         t.only_once_hsgt_data(trade_date)
 
+    def fix_emotion_data(self, trade_date):
+        """
+        修复某日情绪指标
+        """
+        e = EmotionIndex()
+        e.repeat_daily_job(trade_date)
+
     def show_300_plot(self):
         """
         画出沪深300走势图
@@ -139,3 +146,9 @@ if __name__ == '__main__':
         hutu_trade.fix_hsgt_data(trade_date)
     elif func == 'show_emotion_plot':
         hutu_trade.show_emotion_plot()
+    elif func == 'fix_emotion_data':
+        if len(sys.argv) < 3:
+            print('请输入trade_date参数值！')
+            sys.exit()
+        trade_date = sys.argv[2]
+        hutu_trade.fix_emotion_data(trade_date)

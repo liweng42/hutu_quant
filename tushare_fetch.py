@@ -455,5 +455,5 @@ class TushareFetch(Hutu):
         print('=====沪深港通文件去重 done!=====', end='\n')
 
     def test(self):
-        new_data = self.pro.query('moneyflow_hsgt', trade_date='20190326')
+        new_data = self.pro.query('moneyflow_hsgt', trade_date='20190327')
         print(new_data)
