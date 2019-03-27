@@ -1,14 +1,11 @@
 import pandas as pd
-import time
-from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-from pylab import *
 import os
 import stock_const as const
 from tushare_fetch import TushareFetch
 from process_stock_data import ProcessStockData
-import utility
 from emotion import EmotionIndex
+from sys import argv
 
 
 class HutuTrade():
@@ -30,7 +27,7 @@ class HutuTrade():
 
     def run_daily_job(self):
         """
-        每日下午4点半例行执行，1.下载日更新数据/2.处理数据
+        每日下午6点例行执行，1.下载日更新数据/2.处理数据
         """
         # 下载更新数据
         # t = TushareFetch()
@@ -49,13 +46,26 @@ class HutuTrade():
         e = EmotionIndex()
         e.run_daily_job()
 
+    def repeat_daily_job(self, trade_date):
+        """
+        重复执行某天日常任务
+        """
+        t = TushareFetch()
+        t.repeat_daily_job(trade_date)
+        p = ProcessStockData()
+        p.repeat_daily_job(trade_date)
+        e = EmotionIndex()
+        e.repeat_daily_job(trade_date)
+
     def show_300_plot(self):
         """
         画出沪深300走势图
         """
-        filename = os.path.join(const.origin_data_index_day_path, const.CODE_INDEX_300 + '.csv')
+        filename = os.path.join(const.origin_data_index_day_path,
+                                const.CODE_INDEX_300 + '.csv')
         stock_data = pd.read_csv(filename)
-        stock_data['trade_date'] = pd.to_datetime(stock_data['trade_date'], format='%Y%m%d')
+        stock_data['trade_date'] = pd.to_datetime(
+            stock_data['trade_date'], format='%Y%m%d')
         # print(stock_data)
         stock_data.set_index('trade_date')
         stock_data.plot(x='trade_date', y='close')
@@ -68,18 +78,22 @@ class HutuTrade():
         # plt.rcParams['font.sans-serif']=['SimHei']#用来正常显示中文标签
         plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
 
-        filename = os.path.join(const.emotion_index_data_root_path, 'emotion_index.csv')
+        filename = os.path.join(const.emotion_index_data_root_path,
+                                'emotion_index.csv')
         stock_data = pd.read_csv(filename)
-        stock_data['trade_date'] = pd.to_datetime(stock_data['trade_date'], format='%Y%m%d')
+        stock_data['trade_date'] = pd.to_datetime(
+            stock_data['trade_date'], format='%Y%m%d')
         #     print(stock_data)
         stock_data.set_index('trade_date')
 
         fig, ax1 = plt.subplots()
-        ax1.plot(stock_data['trade_date'], stock_data['close'], 'r', label='close')
+        ax1.plot(
+            stock_data['trade_date'], stock_data['close'], 'r', label='close')
         plt.legend(loc=2)
 
         ax2 = ax1.twinx()
-        ax2.plot(stock_data['trade_date'], stock_data['v'], label='emotion_index')
+        ax2.plot(
+            stock_data['trade_date'], stock_data['v'], label='emotion_index')
         plt.legend(loc=1)
 
         ax1.set_xlabel('trade_date')
@@ -93,7 +107,7 @@ class HutuTrade():
 if __name__ == '__main__':
     hutu_trade = HutuTrade()
     # hutu_trade.run_only_once()
-    hutu_trade.run_daily_job()
+    hutu_trade.repeat_daily_job('20190326')
     # hutu_trade.show_emotion_plot()
     # t = TushareFetch()
     # t.get_cal_start_date()
@@ -102,4 +116,3 @@ if __name__ == '__main__':
     # e.run_only_once()
     # t = TushareFetch()
     # t.only_once_hsgt_data()
-    

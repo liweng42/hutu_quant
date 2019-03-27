@@ -1,0 +1,9 @@
+{
+    "editor.wordWrapColumn": 120,
+    "files.exclude": {
+        "**/.DS_Store": false,
+        "**/DS_Store": true
+    },
+    "files.insertFinalNewline": true,
+    "python.linting.flake8Args": ["--max-line-length=120"],
+}

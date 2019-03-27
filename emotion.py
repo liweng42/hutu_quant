@@ -23,7 +23,8 @@ class EmotionIndex(Hutu):
         super(EmotionIndex, self).__init__()
         self.check_folder()
         # 这里初始化上次更新日期为 emotion 目录下的上证指数文件最后更新日期
-        self.last_update_time = self.get_last_update_time(self.hutu_type['emotion'])
+        self.last_update_time = self.get_last_update_time(
+            self.hutu_type['emotion'])
 
     def check_folder(self):
         """
@@ -59,23 +60,30 @@ class EmotionIndex(Hutu):
             date_list.append(row['cal_date'])
         date_list.sort()
         # 判断当前时间，如果在下午16点20分后，可以计算当天日期，否则排除当天日期
-        d1 = datetime.strptime(str(datetime.now().date())+'16:20', '%Y-%m-%d%H:%M')
+        d1 = datetime.strptime(
+            str(datetime.now().date()) + '16:20', '%Y-%m-%d%H:%M')
         if datetime.now() < d1 and int(self.today_date) in date_list:
             date_list.remove(int(self.today_date))
         # print(df)
         # 读取样本文件，获取数据格式
         emotion_df = pd.read_csv(const.SAMPLE_EMOTION_BASIC)
         emotion_df.drop(emotion_df.index, inplace=True)
-        filename = os.path.join(const.emotion_index_data_root_path, 'emotion_basic.csv')
+        filename = os.path.join(const.emotion_index_data_root_path,
+                                'emotion_basic.csv')
         count = 1
         length = len(date_list)
         for date in date_list:
             emotion_df = emotion_df.append(self.calculate(date))
             # print(emotion_df)
-            emotion_df = emotion_df.sort_values(by=['trade_date'], ascending=False)
-            emotion_df.to_csv(filename, index=False, columns=const.EMOTION_BASIC_COLUMNS)
+            emotion_df = emotion_df.sort_values(
+                by=['trade_date'], ascending=False)
+            emotion_df.to_csv(
+                filename, index=False, columns=const.EMOTION_BASIC_COLUMNS)
             percent = round(1.00 * count / length * 100, 2)
-            print('计算日期：%s, 进度 : %s [%d/%d]' % ((date, str(percent)+'%', count, length)), end='\r')
+            print(
+                '计算日期：%s, 进度 : %s [%d/%d]' % (
+                    (date, str(percent) + '%', count, length)),
+                end='\r')
             count = count + 1
         time.sleep(1)
         # 计算市场情绪指标文件
@@ -100,13 +108,32 @@ class EmotionIndex(Hutu):
             self.update_emotion_basic(date)
             time.sleep(0.5)
             percent = round(1.00 * count / length * 100, 2)
-            print('计算日期：%s, 进度 : %s [%d/%d]' % ((date, str(percent)+'%', count, length)), end='\r')
+            print(
+                '计算日期：%s, 进度 : %s [%d/%d]' % (
+                    (date, str(percent) + '%', count, length)),
+                end='\r')
             count = count + 1
         time.sleep(1)
         # 计算市场情绪指标文件
         self.compute_emotion_index()
         print('\n结束时间：%s' % datetime.now(), end='\n')
         print('=====EmotionIndex run_daily_job done!=====', end='\n')
+
+    @utility.time_it
+    def repeat_daily_job(self, trade_date):
+        """
+        计算市场情绪指标，日常任务
+        """
+        # 读取指数文件，取相应的值
+        print('\n=====EmotionIndex repeat_daily_job start=====', end='\n')
+        print('开始时间：%s' % datetime.now(), end='\n')
+        trade_date = int(trade_date)            
+        # 更新emotion_basic文件
+        self.update_emotion_basic(trade_date)
+        # 计算市场情绪指标文件
+        self.compute_emotion_index()
+        print('\n结束时间：%s' % datetime.now(), end='\n')
+        print('=====EmotionIndex repeat_daily_job done!=====', end='\n')
 
     @utility.time_it
     def update_emotion_basic(self, trade_date):
@@ -117,7 +144,8 @@ class EmotionIndex(Hutu):
         # print('\n=====计算某日市场情绪指标的基础值=====', end='\n')
         # print('开始时间：%s' % datetime.now(), end='\n')
         # 读取emotion_basic文件
-        filename = os.path.join(const.emotion_index_data_root_path, 'emotion_basic.csv')
+        filename = os.path.join(const.emotion_index_data_root_path,
+                                'emotion_basic.csv')
         emotion_df = pd.read_csv(filename)
         # print('计算日期 %s' % trade_date, end='\n')
         # 将数据按照交易日期升序
@@ -127,7 +155,8 @@ class EmotionIndex(Hutu):
         emotion_df = emotion_df.sort_values(by=['trade_date'], ascending=False)
         # print(emotion_df)
 
-        emotion_df.to_csv(filename, index=False, columns=const.EMOTION_BASIC_COLUMNS)
+        emotion_df.to_csv(
+            filename, index=False, columns=const.EMOTION_BASIC_COLUMNS)
         # print('\n结束时间：%s' % datetime.now(), end='\n')
         # print('=====计算某日市场情绪指标的基础值 done!=====', end='\n')
 
@@ -137,7 +166,8 @@ class EmotionIndex(Hutu):
         输入：emotion_basic文件
         输出：emotion_index文件
         """
-        filename = os.path.join(const.emotion_index_data_root_path, 'emotion_basic.csv')
+        filename = os.path.join(const.emotion_index_data_root_path,
+                                'emotion_basic.csv')
         if not os.path.exists(filename):
             print('文件不存在！%s' % filename)
             return False
@@ -147,43 +177,67 @@ class EmotionIndex(Hutu):
         # 分别计算各个值，分配权重
         emotion_df['pct_chg_v'] = round(emotion_df['pct_chg'] / 1.5, 2) * 5
         emotion_df['vol_5'] = emotion_df['vol'].rolling(5).mean()
-        emotion_df['vol_v'] = round(emotion_df['vol'] / emotion_df['vol_5'], 2) * 3
-        emotion_df['ema24_on_v'] = np.where(emotion_df['close'] > emotion_df['ema24'], 1, -1) * 5
-        emotion_df['ma120_on_v'] = np.where(emotion_df['close'] > emotion_df['ma120'], 1, -1) * 4
-        emotion_df['ma250_on_v'] = np.where(emotion_df['close'] > emotion_df['ma250'], 1, -1) * 3
-        emotion_df['rise_fall_v'] = round((emotion_df['rise'] - emotion_df['fall']) / (emotion_df['rise'] + emotion_df['fall']), 2) * 3
-        emotion_df['rise_limit_fall_limit_v'] = round((emotion_df['rise_limit'] - emotion_df['fall_limit']) / (emotion_df['rise_limit'] + emotion_df['fall_limit']), 2) * 3
-        emotion_df['rise_limit_count_5'] = emotion_df['rise_limit_count'].rolling(5).mean()
-        emotion_df['rise_limit_count_v'] = round(emotion_df['rise_limit_count'] / emotion_df['rise_limit_count_5'], 2) * 3
+        emotion_df['vol_v'] = round(emotion_df['vol'] / emotion_df['vol_5'],
+                                    2) * 3
+        emotion_df['ema24_on_v'] = np.where(
+            emotion_df['close'] > emotion_df['ema24'], 1, -1) * 5
+        emotion_df['ma120_on_v'] = np.where(
+            emotion_df['close'] > emotion_df['ma120'], 1, -1) * 4
+        emotion_df['ma250_on_v'] = np.where(
+            emotion_df['close'] > emotion_df['ma250'], 1, -1) * 3
+        emotion_df['rise_fall_v'] = round(
+            (emotion_df['rise'] - emotion_df['fall']) /
+            (emotion_df['rise'] + emotion_df['fall']), 2) * 3
+        emotion_df['rise_limit_fall_limit_v'] = round(
+            (emotion_df['rise_limit'] - emotion_df['fall_limit']) /
+            (emotion_df['rise_limit'] + emotion_df['fall_limit']), 2) * 3
+        emotion_df['rise_limit_count_5'] = emotion_df[
+            'rise_limit_count'].rolling(5).mean()
+        emotion_df['rise_limit_count_v'] = round(
+            emotion_df['rise_limit_count'] / emotion_df['rise_limit_count_5'],
+            2) * 3
         emotion_df['ema24_up_5'] = emotion_df['ema24_up'].rolling(5).mean()
-        emotion_df['ema24_up_v'] = round(emotion_df['ema24_up'] / emotion_df['ema24_up_5'], 2) * 4
+        emotion_df['ema24_up_v'] = round(
+            emotion_df['ema24_up'] / emotion_df['ema24_up_5'], 2) * 4
         emotion_df['ma120_up_5'] = emotion_df['ma120_up'].rolling(5).mean()
-        emotion_df['ma120_up_v'] = round(emotion_df['ma120_up'] / emotion_df['ma120_up_5'], 2) * 3
-        emotion_df['north_money_5'] = emotion_df['north_money'].rolling(5).mean()
-        emotion_df['north_money_v'] = np.where(emotion_df['north_money'] > emotion_df['north_money_5'], 1, -1) * 4
+        emotion_df['ma120_up_v'] = round(
+            emotion_df['ma120_up'] / emotion_df['ma120_up_5'], 2) * 3
+        emotion_df['north_money_5'] = emotion_df['north_money'].rolling(
+            5).mean()
+        emotion_df['north_money_v'] = np.where(
+            emotion_df['north_money'] > emotion_df['north_money_5'], 1, -1) * 4
         # 用 0 填补 Nan
         emotion_df = emotion_df.fillna(0)
         # 最后计算平均值，一共11个因子
         count = 11
-        emotion_df['v'] = emotion_df['pct_chg_v'] + emotion_df['vol_v'] + emotion_df['ema24_on_v'] + emotion_df['ma120_on_v'] + emotion_df['ma250_on_v']
-        emotion_df['v'] = emotion_df['v'] + emotion_df['rise_fall_v'] + emotion_df['rise_limit_fall_limit_v'] + emotion_df['rise_limit_count_v'] + emotion_df['ema24_up_v'] + emotion_df['ma120_up_v'] 
+        emotion_df['v'] = emotion_df['pct_chg_v'] + emotion_df[
+            'vol_v'] + emotion_df['ema24_on_v'] + emotion_df[
+                'ma120_on_v'] + emotion_df['ma250_on_v']
+        emotion_df[
+            'v'] = emotion_df['v'] + emotion_df['rise_fall_v'] + emotion_df[
+                'rise_limit_fall_limit_v'] + emotion_df[
+                    'rise_limit_count_v'] + emotion_df[
+                        'ema24_up_v'] + emotion_df['ma120_up_v']
         emotion_df['v'] = emotion_df['v'] + emotion_df['north_money_v']
-        emotion_df['v'] = round(emotion_df['v']/count, 2)
+        emotion_df['v'] = round(emotion_df['v'] / count, 2)
         emotion_df['v_5'] = emotion_df['v'].rolling(5).mean()
-        p_filename = os.path.join(const.emotion_index_data_root_path, 'emotion_index.csv')
-        columns = const.EMOTION_INDEX_COLUMNS.extend(const.EMOTION_BASIC_COLUMNS)
+        p_filename = os.path.join(const.emotion_index_data_root_path,
+                                  'emotion_index.csv')
+        columns = const.EMOTION_INDEX_COLUMNS.extend(
+            const.EMOTION_BASIC_COLUMNS)
         print(columns)
         # 降序排列
         emotion_df = emotion_df.sort_values(by=['trade_date'], ascending=False)
         # print(emotion_df)
-        emotion_df.to_csv(p_filename, index=False, columns=columns)        
+        emotion_df.to_csv(p_filename, index=False, columns=columns)
 
     def calculate(self, trade_date):
         """
         输入文件：trade_date维度的股票文件
         输出：指数日期的市场情绪基础指标值
         """
-        filename = os.path.join(const.process_data_market_trade_date_day_path, str(trade_date) + '.csv')
+        filename = os.path.join(const.process_data_market_trade_date_day_path,
+                                str(trade_date) + '.csv')
         df = pd.read_csv(filename)
         # print(tmp_df)
         # 统计市场情绪基础指标
@@ -194,9 +248,10 @@ class EmotionIndex(Hutu):
         self.rise_limit_count = len(df[(df['rise_limit_count'] > 1)])
         self.ema24_up = len(df[(df['ema24_up'] > 0)])
         self.ma120_up = len(df[(df['ma120_up'] > 0)])
-        
+
         # 输入指数文件，取相应的值
-        filename = os.path.join(const.process_data_index_day_path, const.CODE_INDEX_SH + '.csv')
+        filename = os.path.join(const.process_data_index_day_path,
+                                const.CODE_INDEX_SH + '.csv')
         df = pd.read_csv(filename)
         df = df[(df['trade_date'] == int(trade_date))]
         if (len(df) > 0):
@@ -215,135 +270,26 @@ class EmotionIndex(Hutu):
             self.north_money = df['north_money'].values[0]
         else:
             self.north_money = 0
-                  
-        output_df = pd.DataFrame(
-            {
-                'trade_date': [self.trade_date],
-                'close': [self.close],
-                'pct_chg': [self.pct_chg],
-                'vol': [self.vol],
-                'ema24': [self.ema24],
-                'ma120': [self.ma120],
-                'ma250': [self.ma250],
-                'rise': [self.rise],
-                'fall': [self.fall],
-                'rise_limit': [self.rise_limit],
-                'fall_limit': [self.fall_limit],
-                'rise_limit_count': [self.rise_limit_count],
-                'ema24_up': [self.ema24_up],
-                'ma120_up': [self.ma120_up],
-                'north_money': [self.north_money]
-            })
+
+        output_df = pd.DataFrame({
+            'trade_date': [self.trade_date],
+            'close': [self.close],
+            'pct_chg': [self.pct_chg],
+            'vol': [self.vol],
+            'ema24': [self.ema24],
+            'ma120': [self.ma120],
+            'ma250': [self.ma250],
+            'rise': [self.rise],
+            'fall': [self.fall],
+            'rise_limit': [self.rise_limit],
+            'fall_limit': [self.fall_limit],
+            'rise_limit_count': [self.rise_limit_count],
+            'ema24_up': [self.ema24_up],
+            'ma120_up': [self.ma120_up],
+            'north_money': [self.north_money]
+        })
         # print(output_df)
         return output_df
-
-    # @utility.time_it
-    # def only_once_emotion_index_basic(self):
-    #     """
-    #     初始化市场情绪基本指标，为下一步计算市场情绪指标打基础
-    #     """
-    #     print('\n=====初始化市场情绪基本指标=====', end='\n')
-    #     print('开始时间：%s' % datetime.now())
-    #     if not self.debug:
-    #         stock_list = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
-    #     else:
-    #         stock_list = pd.read_csv(const.DEBUG_DATA_STOCK_BASIC)
-    #     count = 1
-    #     for index, row in stock_list.iterrows():
-    #         code = row["ts_code"]
-    #         o_filename = os.path.join(const.process_data_market_day_path, row["ts_code"] + '.csv')
-    #         p_filename = os.path.join(const.emotion_index_data_day_path, row["ts_code"] + '.csv')
-    #         length = len(stock_list)
-    #         if os.path.exists(o_filename):
-    #             stock_data = pd.read_csv(o_filename)
-    #             stock_data = self.compute_emotion_index_basic(stock_data)
-    #             print(stock_data)
-    #             # const.COLUMNS.extend(const.INDICATOR_COLUMNS)
-    #             stock_data.to_csv(p_filename, index=False, columns=const.EMOTION_BASIC_COLUMNS)
-    #         percent = round(1.00 * count / length * 100, 2)
-    #         print('进度 : %s [%d/%d]，code:%s' % ((str(percent)+'%', count, length, code)), end='\r')
-
-    #         count = count + 1
-    #     print('结束时间：%s' % datetime.now())
-    #     print('=====初始化市场情绪基本指标 done!=====', end='\n')
-
-    # def compute_emotion_index_basic(self, stock_data):
-    #     """
-    #     计算市场情绪基本指标，输入为单只股票的日行情
-    #     """
-    #     # 将数据按照交易日期从远到近排序
-    #     df = stock_data.sort_values(by=['trade_date'])
-    #     df = df.reset_index(drop=True)
-    #     # 上涨
-    #     df['rise'] = np.where(df['pct_chg'] > 0, 1, 0)
-    #     # 下跌
-    #     df['fall'] = np.where(df['pct_chg'] < 0, 1, 0)
-    #     # 涨停
-    #     df['rise_limit'] = np.where(round(df["pre_close"] * 1.1, 2) == df['close'], 1, 0)
-    #     # 涨停连板
-    #     df['rise_limit_count'] = df['rise_limit']
-    #     # 跌停
-    #     df['fall_limit'] = np.where(round(df["pre_close"] * 0.9, 2) == df['close'], 1, 0)
-    #     # 跌停连板
-    #     df['fall_limit_count'] = df['fall_limit']
-    #     # ema24日线上方
-    #     df['ema24_up'] = np.where(df["close"] >= df['ema24'], 1, 0)
-    #     # ma120日线上方
-    #     df['ma120_up'] = np.where(df["close"] >= df['ma120'], 1, 0)
-
-    #     rise_limit_count = 0
-    #     fall_limit_count = 0
-    #     for index, row in df.iterrows():
-    #         # print(type(row))
-    #         # 计算涨停板连板
-    #         # print(row["ts_code"], row['trade_date'], row['close'], row["pre_close"], row['pct_chg'])
-    #         if (row['rise_limit'] == 1):
-    #             rise_limit_count = rise_limit_count + 1
-    #         else:
-    #             rise_limit_count = 0
-    #         df.at[index, 'rise_limit_count'] = rise_limit_count
-    #         # 计算跌停板连板
-    #         if (row['fall_limit'] == 1):
-    #             fall_limit_count = fall_limit_count + 1
-    #         else:
-    #             fall_limit_count = 0
-    #         df.at[index, 'fall_limit_count'] = fall_limit_count
-    #         # # 计算30天内250日的股价高点
-    #         # # print(df[0:index].tail())
-    #         # is_high = self.compute_30_250_high(str(row['trade_date']), row['high'], df[0:index])
-    #         # if is_high:
-    #         #     df.at[index, 'is_high_30_250'] = 1
-    #         # else:
-    #         #     df.at[index, 'is_high_30_250'] = 0
-    #     # 将数据按照交易日期从近到远排序
-    #     df = df.sort_values(by=['trade_date'], ascending=False)
-    #     return df
-
-    # @utility.time_it
-    # def daily_job_continued_limit_count(self):
-    #     """
-    #     更新连板数等数据，每日执行
-    #     """
-    #     print('\n=====更新连板数等数据=====', end='\n')
-    #     print('开始时间：%s' % datetime.now())
-    #     if not self.debug:
-    #         stock_list = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
-    #     else:
-    #         stock_list = pd.read_csv(const.DEBUG_DATA_STOCK_BASIC)
-    #     count = 1
-    #     for index, row in stock_list.iterrows():
-    #         o_filename = os.path.join(const.process_data_market_day_path, row["ts_code"] + '.csv')
-    #         # p_filename = os.path.join(const.process_data_market_day_path, row["ts_code"] + '.csv')
-    #         self.show_continued_limit_count(
-    #             o_filename,
-    #             o_filename,
-    #             row["ts_code"],
-    #             count,
-    #             len(stock_list)
-    #             )
-    #         count = count + 1
-    #     print('结束时间：%s' % datetime.now())
-    #     print('=====更新连板数等数据 done!=====', end='\n')
 
     # def compute_30_250_high(self, date, date_high, df):
     #     """
@@ -377,7 +323,7 @@ class EmotionIndex(Hutu):
     #         # df250_new = df250.tail(1)
     #         # print('=====df250_new=====')
     #         # print(df250_new.tail())
-    #         if (len(df30_new) > 0 and len(df250_new) > 0):                
+    #         if (len(df30_new) > 0 and len(df250_new) > 0):
     #             result = max(date_high, df30_new['high'].values[0]) >= df250_new['high'].values[0]
     #             print('%s %s %s %s %s' % (date, date_high, df30_new['high'].values[0], df250_new['high'].values[0], result))
     #             # result = date_high >= df250_new['high'].values[0]
@@ -388,11 +334,11 @@ class EmotionIndex(Hutu):
     #     stock_data = stock_data.sort_values(by=['trade_date'], ascending=False)
     #     # print(stock_data)
     #     stock_data['date'] = pd.to_datetime(stock_data['trade_date'], format='%Y%m%d')
-    #     stock_data.set_index('date', inplace=True)        
+    #     stock_data.set_index('date', inplace=True)
     #     period_stock_data = stock_data.resample(period_type).last()
     #     period_stock_data['open'] = stock_data['open'].resample(period_type).first()
     #     period_stock_data['high'] = stock_data['high'].resample(period_type).max()
-    #     period_stock_data['low'] = stock_data['low'].resample(period_type).min() 
+    #     period_stock_data['low'] = stock_data['low'].resample(period_type).min()
     #     period_stock_data['change'] = stock_data['change'].resample(period_type).sum()
     #     period_stock_data['pre_close'] = stock_data['pre_close'].resample(period_type).first()
     #     period_stock_data['pct_chg'] = round((period_stock_data['close'] - period_stock_data['pre_close']) / period_stock_data['pre_close'], 4) * 100
@@ -400,8 +346,4 @@ class EmotionIndex(Hutu):
     #     period_stock_data['amount'] = stock_data['amount'].resample(period_type).sum()
     #     period_stock_data = period_stock_data[period_stock_data['ts_code'].notnull()]
     #     period_stock_data.reset_index(inplace=True)
-    #     return period_stock_data        
-
-
-# e = EmotionIndex()
-# e.run_only_once()
+    #     return period_stock_data

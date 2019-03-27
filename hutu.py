@@ -17,40 +17,49 @@ class Hutu():
     today_date = time.strftime('%Y%m%d', time.localtime(time.time()))
     # 上次更新日期，默认值
     last_update_time = '20190308'
+    # 每天更新时间，18点整后开始更新
+    begin_down_time = '18:00'
 
     hutu_type = {
-        'origin': os.path.join(const.origin_data_index_day_path, const.CODE_INDEX_SH + '.csv'),
-        'process': os.path.join(const.process_data_index_day_path, const.CODE_INDEX_SH + '.csv'),
-        'emotion': os.path.join(const.emotion_index_data_root_path, 'emotion_basic.csv')
-        }
+        'origin':
+        os.path.join(const.origin_data_index_day_path,
+                     const.CODE_INDEX_SH + '.csv'),
+        'process':
+        os.path.join(const.process_data_index_day_path,
+                     const.CODE_INDEX_SH + '.csv'),
+        'emotion':
+        os.path.join(const.emotion_index_data_root_path, 'emotion_basic.csv')
+    }
 
     def __init__(self):
         """
         初始化
         """
         # 这里初始化上次更新日期为 origin 目录下的上证指数文件最后更新日期
-        self.last_update_time = self.get_last_update_time(self.hutu_type['origin'])
+        self.last_update_time = self.get_last_update_time(
+            self.hutu_type['origin'])
         self.init_config_value()
 
     def init_config_value(self):
         """
         初始化配置值，从配置文件读取
         """
-        cp = configparser.RawConfigParser(
-            {
-                # 设置配置文件的默认值
-                const.CONFIG_APP_NAME: 'hutu_trade',
-                const.CONFIG_LAST_UPDATE_TIME: self.last_update_time,
-                const.CONFIG_DEBUG: True
-            })
+        cp = configparser.RawConfigParser({
+            # 设置配置文件的默认值
+            const.CONFIG_APP_NAME: 'hutu_trade',
+            const.CONFIG_LAST_UPDATE_TIME: self.last_update_time,
+            const.CONFIG_DEBUG: True
+        })
         config_file = os.path.join(os.getcwd(), const.CONFIG_FILE_NAME)
         if os.path.exists(config_file):
             with codecs.open(config_file, 'r', encoding='utf-8') as f:
                 cp.readfp(f)
         self.app_name = self.read_from_config(cp, const.CONFIG_APP_NAME)
-        self.debug = utility.str_to_bool(self.read_from_config(cp, const.CONFIG_DEBUG))
+        self.debug = utility.str_to_bool(
+            self.read_from_config(cp, const.CONFIG_DEBUG))
         # print(self.debug)
-        self.last_update_time = self.read_from_config(cp, const.CONFIG_LAST_UPDATE_TIME)
+        self.last_update_time = self.read_from_config(
+            cp, const.CONFIG_LAST_UPDATE_TIME)
 
     def read_from_config(self, cp, item_name):
         """
@@ -99,14 +108,16 @@ class Hutu():
             df = pd.read_csv(const.DEBUG_DATA_STOCK_TRADE_CAL)
         else:
             df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
-        df = df[(df['cal_date'] > int(self.last_update_time)) & (df['is_open'] > 0)]
+        df = df[(df['cal_date'] > int(self.last_update_time))
+                & (df['is_open'] > 0)]
         # print(df)
         list = []
         for index, row in df.iterrows():
             list.append(row['cal_date'])
         list.sort()
-        # 判断当前时间，如果在下午16点20分后，可以计算当天日期，否则排除当天日期
-        d1 = datetime.strptime(str(datetime.now().date())+'16:20', '%Y-%m-%d%H:%M')
+        # 判断当前时间，如果在begin_down_time后，可以计算当天日期，否则排除当天日期
+        d1 = datetime.strptime(
+            str(datetime.now().date()) + self.begin_down_time, '%Y-%m-%d%H:%M')
         if datetime.now() < d1 and int(self.today_date) in list:
             list.remove(int(self.today_date))
         # print(list)
@@ -160,7 +171,7 @@ class Hutu():
 
     def drop_duplicates(self, path):
         """
-        数据去重
+        数据去重，依据文件中的 trade_date列
         """
         for root, dirs, files in os.walk(path):
             files.sort()
@@ -169,16 +180,13 @@ class Hutu():
                 if os.path.splitext(file)[1] == '.csv':
                     filename = os.path.join(path, file)
                     percent = round(1.00 * count / len(files) * 100, 2)
-                    print('进度 : %s [%d/%d]，file:%s' % ((str(percent)+'%', count, len(files), file)), end='\r')
+                    print(
+                        '进度 : %s [%d/%d]，file:%s' % (
+                            (str(percent) + '%', count, len(files), file)),
+                        end='\r')
                     stock_data = pd.read_csv(filename)
                     # 去重
                     stock_data.drop_duplicates('trade_date', inplace=True)
                     stock_data.to_csv(
-                        filename,
-                        index=False,
-                        columns=const.COLUMNS
-                        )
+                        filename, index=False, columns=const.COLUMNS)
                 count = count + 1
-
-# hutu = Hutu()
-# hutu.get_cal_end_date()

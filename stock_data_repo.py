@@ -1,7 +1,6 @@
 import stock_const as const
 import os
 import pandas as pd
-import zlib, pickle
 import redis
 
 
@@ -19,7 +18,8 @@ class StockDataRepo:
         获取股票日K线数据
         """
         if not self.redis_cli.exists(ts_code):
-            filename = os.path.join(const.process_data_market_day_path, ts_code + '.csv')
+            filename = os.path.join(const.process_data_market_day_path,
+                                    ts_code + '.csv')
             if os.path.exists(filename):
                 df = pd.read_csv(filename)
                 self.redis_cli.set(ts_code, df.to_msgpack(compress='zlib'))
@@ -33,7 +33,8 @@ class StockDataRepo:
         """
         set股票日K线数据
         """
-        filename = os.path.join(const.process_data_market_day_path, ts_code + '.csv')
+        filename = os.path.join(const.process_data_market_day_path,
+                                ts_code + '.csv')
         if os.path.exists(filename):
             df = pd.read_csv(filename)
             self.redis_cli.set(ts_code, df.to_msgpack(compress='zlib'))
