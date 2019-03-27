@@ -150,13 +150,16 @@ class EmotionIndex(Hutu):
         # print('计算日期 %s' % trade_date, end='\n')
         # 将数据按照交易日期升序
         emotion_df = emotion_df.sort_values(by=['trade_date'])
-        emotion_df = emotion_df.append(self.calculate(trade_date))
-        # 将数据按照交易日期降序
-        emotion_df = emotion_df.sort_values(by=['trade_date'], ascending=False)
-        # print(emotion_df)
-
-        emotion_df.to_csv(
-            filename, index=False, columns=const.EMOTION_BASIC_COLUMNS)
+        # 检查是否存在该日期
+        tmp_df = emotion_df[(emotion_df['trade_date'] == int(trade_date))]
+        if (len(tmp_df) <= 0):  # 不存在则追加
+            emotion_df = emotion_df.append(self.calculate(trade_date))
+            # 将数据按照交易日期降序
+            emotion_df = emotion_df.sort_values(
+                by=['trade_date'], ascending=False)
+            # print(emotion_df)
+            emotion_df.to_csv(
+                filename, index=False, columns=const.EMOTION_BASIC_COLUMNS)
         # print('\n结束时间：%s' % datetime.now(), end='\n')
         # print('=====计算某日市场情绪指标的基础值 done!=====', end='\n')
 

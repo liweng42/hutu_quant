@@ -143,7 +143,7 @@ if __name__ == '__main__':
             print('请输入trade_date参数值！')
             sys.exit()
         trade_date = sys.argv[2]
-        hutu_trade.fix_hsgt_data(trade_date)
+        hutu_trade.repeat_daily_job(trade_date)
     elif func == 'show_emotion_plot':
         hutu_trade.show_emotion_plot()
     elif func == 'fix_emotion_data':
