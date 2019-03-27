@@ -57,6 +57,13 @@ class HutuTrade():
         e = EmotionIndex()
         e.repeat_daily_job(trade_date)
 
+    def fix_hsgt_data(self, trade_date):
+        """
+        修复沪深港通数据
+        """
+        t = TushareFetch()
+        t.only_once_hsgt_data(trade_date)
+
     def show_300_plot(self):
         """
         画出沪深300走势图
@@ -107,7 +114,7 @@ class HutuTrade():
 if __name__ == '__main__':
     hutu_trade = HutuTrade()
     # hutu_trade.run_only_once()
-    hutu_trade.repeat_daily_job('20190326')
+    hutu_trade.fix_hsgt_data('20190326')
     # hutu_trade.show_emotion_plot()
     # t = TushareFetch()
     # t.get_cal_start_date()

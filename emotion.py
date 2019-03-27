@@ -127,7 +127,7 @@ class EmotionIndex(Hutu):
         # 读取指数文件，取相应的值
         print('\n=====EmotionIndex repeat_daily_job start=====', end='\n')
         print('开始时间：%s' % datetime.now(), end='\n')
-        trade_date = int(trade_date)            
+        trade_date = int(trade_date)
         # 更新emotion_basic文件
         self.update_emotion_basic(trade_date)
         # 计算市场情绪指标文件

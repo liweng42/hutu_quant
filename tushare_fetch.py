@@ -321,16 +321,20 @@ class TushareFetch(Hutu):
         df = df.sort_values(by=['trade_date'])
         # print(df)
         # print(df.dtypes)
-        new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
-        # print(new_data)
-        new_data['trade_date'] = new_data['trade_date'].astype('int64')
-        # print(new_data.dtypes)
-        df = df.append(new_data)
-        # print(df)
-        # 降序
-        df = df.sort_values(by=['trade_date'], ascending=False)
-        # print(df)
-        df.to_csv(filename, index=False)
+        # 检查是否存在该日期
+        tmp_df = df[(df['trade_date'] == int(trade_date))]
+        if (len(tmp_df) <= 0):  # 不存在则追加
+            new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
+            # print(new_data)
+            if (len(new_data) > 0):
+                new_data['trade_date'] = new_data['trade_date'].astype('int64')
+                # print(new_data.dtypes)
+                df = df.append(new_data)
+                # print(df)
+                # 降序
+                df = df.sort_values(by=['trade_date'], ascending=False)
+                # print(df)
+                df.to_csv(filename, index=False)
         print('\n结束时间：%s' % datetime.now(), end='\n')
         print('=====更新沪深港通的日数据 done!=====', end='\n')
 
