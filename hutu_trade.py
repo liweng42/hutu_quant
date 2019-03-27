@@ -5,7 +5,7 @@ import stock_const as const
 from tushare_fetch import TushareFetch
 from process_stock_data import ProcessStockData
 from emotion import EmotionIndex
-from sys import argv
+import sys
 
 
 class HutuTrade():
@@ -18,6 +18,7 @@ class HutuTrade():
         """
         初始化下载形成origin文件，初始化处理计算各个指标形成process文件，初始化计算emotion指标形成emotion文件
         """
+        print('run_only_once')
         t = TushareFetch()
         t.run_only_once()
         p = ProcessStockData()
@@ -39,6 +40,7 @@ class HutuTrade():
         #     if updated:
         #         e = EmotionIndex()
         #         e.run_daily_job()
+        print('run_daily_job')
         t = TushareFetch()
         t.run_daily_job()
         p = ProcessStockData()
@@ -50,6 +52,7 @@ class HutuTrade():
         """
         重复执行某天日常任务
         """
+        print('repeat_daily_job')
         t = TushareFetch()
         t.repeat_daily_job(trade_date)
         p = ProcessStockData()
@@ -61,6 +64,7 @@ class HutuTrade():
         """
         修复沪深港通数据
         """
+        print('repeat_daily_job')
         t = TushareFetch()
         t.only_once_hsgt_data(trade_date)
 
@@ -112,14 +116,26 @@ class HutuTrade():
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print('请输入要执行的方法名！')
+        sys.exit()
     hutu_trade = HutuTrade()
-    # hutu_trade.run_only_once()
-    hutu_trade.repeat_daily_job('20190326')
-    # hutu_trade.show_emotion_plot()
-    # t = TushareFetch()
-    # t.get_cal_start_date()
-
-    # e = EmotionIndex()
-    # e.run_only_once()
-    # t = TushareFetch()
-    # t.only_once_hsgt_data()
+    func = sys.argv[1]
+    if func == 'run_only_once':
+        hutu_trade.run_only_once()
+    elif func == 'run_daily_job':
+        hutu_trade.run_daily_job()
+    elif func == 'fix_hsgt_data':
+        if len(sys.argv) < 3:
+            print('请输入trade_date参数值！')
+            sys.exit()
+        trade_date = sys.argv[2]
+        hutu_trade.fix_hsgt_data(trade_date)
+    elif func == 'repeat_daily_job':
+        if len(sys.argv) < 3:
+            print('请输入trade_date参数值！')
+            sys.exit()
+        trade_date = sys.argv[2]
+        hutu_trade.fix_hsgt_data(trade_date)
+    elif func == 'show_emotion_plot':
+        hutu_trade.show_emotion_plot()
