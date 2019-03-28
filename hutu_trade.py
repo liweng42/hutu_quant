@@ -121,6 +121,39 @@ class HutuTrade():
 
         plt.show()
 
+    def show_hsgt_plot(self):
+        """
+        画出沪深港通数据走势图，叠加收盘价走势
+        """
+        plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
+
+        filename = os.path.join(const.emotion_index_data_root_path,
+                                'emotion_basic.csv')
+        stock_data = pd.read_csv(filename)
+        stock_data['trade_date'] = pd.to_datetime(
+            stock_data['trade_date'], format='%Y%m%d')
+        #     print(stock_data)
+        stock_data.set_index('trade_date')
+
+        fig, ax1 = plt.subplots()
+        ax1.plot(
+            stock_data['trade_date'], stock_data['close'], 'r', label='close')
+        plt.legend(loc=2)
+
+        ax2 = ax1.twinx()
+        ax2.plot(
+            stock_data['trade_date'],
+            stock_data['north_money'],
+            label='north_money')
+        plt.legend(loc=1)
+
+        ax1.set_xlabel('trade_date')
+        ax1.set_ylabel('close')
+        ax2.set_ylabel('north_money')
+        plt.gcf().autofmt_xdate()
+
+        plt.show()
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -152,3 +185,5 @@ if __name__ == '__main__':
             sys.exit()
         trade_date = sys.argv[2]
         hutu_trade.fix_emotion_data(trade_date)
+    elif func == 'show_hsgt_plot':
+        hutu_trade.show_hsgt_plot()

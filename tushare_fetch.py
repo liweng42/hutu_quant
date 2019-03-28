@@ -107,7 +107,7 @@ class TushareFetch(Hutu):
             # 股票数据去重
             self.stock_day_drop_duplicates()
             # 沪深港通数据去重
-            self.hsgt_day_drop_duplicates()
+            # self.hsgt_day_drop_duplicates()
             return True
         else:
             print('\n没有需要更新的数据', end='\n')
@@ -135,7 +135,7 @@ class TushareFetch(Hutu):
         # 股票数据去重
         self.stock_day_drop_duplicates()
         # 沪深港通数据去重
-        self.hsgt_day_drop_duplicates()
+        # self.hsgt_day_drop_duplicates()
         print('\n结束时间：%s' % datetime.now(), end='\n')
         print('=====TushareFetch repeat_daily_job done!=====', end='\n')
 

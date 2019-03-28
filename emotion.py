@@ -207,8 +207,17 @@ class EmotionIndex(Hutu):
             emotion_df['ma120_up'] / emotion_df['ma120_up_5'], 2) * 3
         emotion_df['north_money_5'] = emotion_df['north_money'].rolling(
             5).mean()
+        # 先取今日北上资金是5日均值的几倍，然后根据今日正负决定方向，最高给 4，最低给 -4
+        emotion_df['north_money_v1'] = round(
+            abs(emotion_df['north_money']) / abs(emotion_df['north_money_5']),
+            2)
+        emotion_df['north_money_v'] = np.where(emotion_df['north_money'] > 0,
+                                               emotion_df['north_money_v1'] * 3,
+                                               -emotion_df['north_money_v1'] * 3)
         emotion_df['north_money_v'] = np.where(
-            emotion_df['north_money'] > emotion_df['north_money_5'], 1, -1) * 4
+            emotion_df['north_money_v'] >= 4, 4, emotion_df['north_money_v'])
+        emotion_df['north_money_v'] = np.where(
+            emotion_df['north_money_v'] <= -4, -4, emotion_df['north_money_v'])
         # 用 0 填补 Nan
         emotion_df = emotion_df.fillna(0)
         # 最后计算平均值，一共11个因子
@@ -222,8 +231,9 @@ class EmotionIndex(Hutu):
                     'rise_limit_count_v'] + emotion_df[
                         'ema24_up_v'] + emotion_df['ma120_up_v']
         emotion_df['v'] = emotion_df['v'] + emotion_df['north_money_v']
-        emotion_df['v'] = round(emotion_df['v'] / count, 2)
+        emotion_df['v'] = round(emotion_df['v'] / count, 1)
         emotion_df['v_5'] = emotion_df['v'].rolling(5).mean()
+        emotion_df['v_5'] = round(emotion_df['v_5'], 1)
         p_filename = os.path.join(const.emotion_index_data_root_path,
                                   'emotion_index.csv')
         columns = const.EMOTION_INDEX_COLUMNS.extend(
@@ -259,8 +269,8 @@ class EmotionIndex(Hutu):
         df = df[(df['trade_date'] == int(trade_date))]
         if (len(df) > 0):
             self.trade_date = df['trade_date'].values[0]
-            self.close = df['close'].values[0]
-            self.pct_chg = df['pct_chg'].values[0]
+            self.close = round(df['close'].values[0], 2)
+            self.pct_chg = round(df['pct_chg'].values[0], 2)
             self.vol = df['vol'].values[0]
             self.ema24 = df['ema24'].values[0]
             self.ma120 = df['ma120'].values[0]
