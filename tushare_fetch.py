@@ -454,6 +454,13 @@ class TushareFetch(Hutu):
         print('\n结束时间：%s' % datetime.now(), end='\n')
         print('=====沪深港通文件去重 done!=====', end='\n')
 
+    def check_hsgt_data(self, trade_date):
+        """
+        检测沪深港通某日数据是否存在
+        """
+        new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
+        print(new_data)
+
     def test(self, trade_date):
         new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
         print(new_data)

@@ -60,11 +60,19 @@ class HutuTrade():
         e = EmotionIndex()
         e.repeat_daily_job(trade_date)
 
+    def repeat_emotion_job(self, trade_date):
+        """
+        先下载沪深港通数据，在重复计算某日的情绪指标
+        """
+        self.fix_hsgt_data(trade_date)
+        e = EmotionIndex()
+        e.repeat_daily_job(trade_date)
+
     def fix_hsgt_data(self, trade_date):
         """
         修复沪深港通数据
         """
-        print('repeat_daily_job')
+        print('fix_hsgt_data')
         t = TushareFetch()
         t.only_once_hsgt_data(trade_date)
 
@@ -74,6 +82,13 @@ class HutuTrade():
         """
         e = EmotionIndex()
         e.repeat_daily_job(trade_date)
+
+    def check_hsgt_data(self, trade_date):
+        """
+        检测沪深港通某日数据是否存在
+        """
+        t = TushareFetch()
+        t.check_hsgt_data(trade_date)
 
     def show_300_plot(self):
         """
@@ -177,6 +192,12 @@ if __name__ == '__main__':
             sys.exit()
         trade_date = sys.argv[2]
         hutu_trade.repeat_daily_job(trade_date)
+    elif func == 'repeat_emotion_job':
+        if len(sys.argv) < 3:
+            print('请输入trade_date参数值！')
+            sys.exit()
+        trade_date = sys.argv[2]
+        hutu_trade.repeat_emotion_job(trade_date)
     elif func == 'show_emotion_plot':
         hutu_trade.show_emotion_plot()
     elif func == 'fix_emotion_data':
@@ -187,3 +208,9 @@ if __name__ == '__main__':
         hutu_trade.fix_emotion_data(trade_date)
     elif func == 'show_hsgt_plot':
         hutu_trade.show_hsgt_plot()
+    elif func == 'check_hsgt_data':
+        if len(sys.argv) < 3:
+            print('请输入trade_date参数值！')
+            sys.exit()
+        trade_date = sys.argv[2]
+        hutu_trade.check_hsgt_data(trade_date)
