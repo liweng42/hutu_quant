@@ -18,8 +18,8 @@ class Hutu():
     today_date = time.strftime('%Y%m%d', time.localtime(time.time()))
     # 上次更新日期，默认值
     last_update_time = '20190308'
-    # 每天更新时间，18点整后开始更新
-    begin_down_time = '18:00'
+    # 每天更新时间，17点整后开始更新
+    begin_down_time = '17:00'
 
     hutu_type = {
         'origin':
