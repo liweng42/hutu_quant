@@ -211,9 +211,9 @@ class EmotionIndex(Hutu):
         emotion_df['north_money_v1'] = round(
             abs(emotion_df['north_money']) / abs(emotion_df['north_money_5']),
             2)
-        emotion_df['north_money_v'] = np.where(emotion_df['north_money'] > 0,
-                                               emotion_df['north_money_v1'] * 3,
-                                               -emotion_df['north_money_v1'] * 3)
+        emotion_df['north_money_v'] = np.where(
+            emotion_df['north_money'] > 0, emotion_df['north_money_v1'] * 3,
+            -emotion_df['north_money_v1'] * 3)
         emotion_df['north_money_v'] = np.where(
             emotion_df['north_money_v'] >= 4, 4, emotion_df['north_money_v'])
         emotion_df['north_money_v'] = np.where(
@@ -304,6 +304,13 @@ class EmotionIndex(Hutu):
         # print(output_df)
         return output_df
 
+    def parser_emotion_index(self):
+        filename = os.path.join(const.emotion_index_data_root_path,
+                                'emotion_index.csv')
+        df = pd.read_csv(filename)
+        df = df[df['v'] > 4]
+        print(df)
+
     # def compute_30_250_high(self, date, date_high, df):
     #     """
     #     30天内250日的股价高点值
@@ -360,3 +367,7 @@ class EmotionIndex(Hutu):
     #     period_stock_data = period_stock_data[period_stock_data['ts_code'].notnull()]
     #     period_stock_data.reset_index(inplace=True)
     #     return period_stock_data
+
+
+# e = EmotionIndex()
+# e.parser_emotion_index()

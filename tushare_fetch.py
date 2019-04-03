@@ -6,6 +6,8 @@ from datetime import datetime
 import os
 import pandas as pd
 import utility
+import requests
+from lxml import etree
 
 
 class TushareFetch(Hutu):
@@ -324,19 +326,95 @@ class TushareFetch(Hutu):
         # 检查是否存在该日期
         tmp_df = df[(df['trade_date'] == int(trade_date))]
         if (len(tmp_df) <= 0):  # 不存在则追加
-            new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
+            # 暂时不从 tushare 取hsgt数据，该从同花顺抓取，tushare 这部分日数据更新不及时
+            # new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
             # print(new_data)
-            if (len(new_data) > 0):
-                new_data['trade_date'] = new_data['trade_date'].astype('int64')
-                # print(new_data.dtypes)
-                df = df.append(new_data)
-                # print(df)
-                # 降序
-                df = df.sort_values(by=['trade_date'], ascending=False)
-                # print(df)
-                df.to_csv(filename, index=False)
+            # if (len(new_data) > 0):
+            #     new_data['trade_date'] = new_data['trade_date'].astype('int64')
+            #     # print(new_data.dtypes)
+            #     df = df.append(new_data)
+            #     # print(df)
+            #     # 降序
+            #     df = df.sort_values(by=['trade_date'], ascending=False)
+            #     # print(df)
+            #     df.to_csv(filename, index=False)
+            date1 = utility.trans_int_data_to_str(trade_date)
+            money_data = self.get_hsgt_data_by_10jqka(date1)
+            north_money = round(money_data['hgt'] + money_data['sgt'], 2)
+            new_data = [
+                int(trade_date), 0, 0, money_data['hgt'], money_data['sgt'],
+                north_money, 0
+            ]
+            new_df = pd.DataFrame(columns=[
+                'trade_date', 'ggt_ss', 'ggt_sz', 'hgt', 'sgt', 'north_money',
+                'south_money'
+            ])
+            # new_data['trade_date'] = new_data['trade_date'].astype('int64')
+            # 插入数据（忽略索引）
+            new_df.loc[0] = new_data
+            print(new_df)
+            # print(type(new_df['trade_date']))
+            df = df.append(new_df)
+            # 降序
+            df = df.sort_values(by=['trade_date'], ascending=False)
+            # print(type(df['trade_date']))
+            print(df)
+            df.to_csv(filename, index=False)
         print('\n结束时间：%s' % datetime.now(), end='\n')
         print('=====更新沪深港通的日数据 done!=====', end='\n')
+
+    def get_hsgt_data_by_10jqka(self, trade_date):
+        """
+        从同花顺下载 trade_date 日期的沪深港通日数据，注意 trade_date只能是 最近10天之内，因为页面上最多10条
+        """
+        urls = {
+            # 沪股通
+            'hgt': 'http://data.10jqka.com.cn/hgt/hgtb/',
+            # 深股通
+            'sgt': 'http://data.10jqka.com.cn/hgt/sgtb/',
+            # # 港股通(沪)
+            # 'ggt_ss': 'http://data.10jqka.com.cn/hgt/ggtb/',
+            # # 港股通(深)
+            # 'ggt_sz': 'http://data.10jqka.com.cn/hgt/ggtbs/'
+        }
+        money_data = {
+            # 沪股通
+            'hgt': 0,
+            # 深股通
+            'sgt': 0,
+            # # 港股通(沪)
+            # 'ggt_ss': 0,
+            # # 港股通(深)
+            # 'ggt_sz': 0
+        }
+        print(money_data)
+        # 北向资金
+        # north_money = 0
+        # 南向资金
+        # south_money = 0
+        headers = {
+            'Accept': 'text/html, */*; q=0.01',
+            'Accept-Language': 'zh-cn',
+            'Host': 'data.10jqka.com.cn',
+            'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15',
+            'Referer': 'http://data.10jqka.com.cn/hgt/hgtb/',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive',
+        }
+        for key in urls.keys():
+            r = requests.get(urls[key], headers=headers, timeout=5)
+            # print(r.text)
+            html = etree.HTML(r.text)
+            trs = html.xpath('//*[@id="table1"]/table/tbody/tr')
+            for tr in trs:
+                if (tr[0].text == trade_date):
+                    # print(tr[1].text)
+                    s = tr[1].text.replace('亿', '')
+                    money_data[key] = round(float(s) * 100, 2)
+                    break
+        print(money_data)
+        return money_data
 
     @utility.time_it
     def daily_job_index_daily_by_date(self, trade_date=None):
