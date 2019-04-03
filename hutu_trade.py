@@ -6,6 +6,7 @@ from tushare_fetch import TushareFetch
 from process_stock_data import ProcessStockData
 from emotion import EmotionIndex
 import sys
+from log_manager import logger
 
 
 class HutuTrade():
@@ -18,7 +19,7 @@ class HutuTrade():
         """
         初始化下载形成origin文件，初始化处理计算各个指标形成process文件，初始化计算emotion指标形成emotion文件
         """
-        print('run_only_once')
+        logger.info('run_only_once')
         t = TushareFetch()
         t.run_only_once()
         p = ProcessStockData()
@@ -40,13 +41,19 @@ class HutuTrade():
         #     if updated:
         #         e = EmotionIndex()
         #         e.run_daily_job()
-        print('run_daily_job')
+        logger.info('run_daily_job start')
+        logger.info('TushareFetch run_daily_job start')
         t = TushareFetch()
         t.run_daily_job()
+        logger.info('TushareFetch run_daily_job end')
+        logger.info('ProcessStockData run_daily_job start')
         p = ProcessStockData()
         p.run_daily_job()
+        logger.info('ProcessStockData run_daily_job end')
+        logger.info('EmotionIndex run_daily_job start')
         e = EmotionIndex()
         e.run_daily_job()
+        logger.info('EmotionIndex run_daily_job end')
 
     def repeat_daily_job(self, trade_date):
         """

@@ -8,6 +8,7 @@ import time
 import configparser
 import codecs
 import utility
+import log_manager
 
 
 class Hutu():
@@ -136,7 +137,7 @@ class Hutu():
         df = df.sort_values(by=['cal_date'])
         df = df[(df['cal_date'] > 20050101) & (df['is_open'] > 0)]
         start_date = df['cal_date'].values[0]
-        print(start_date)
+        Log.debug(start_date)
         return str(start_date)
 
     def get_cal_end_date(self):

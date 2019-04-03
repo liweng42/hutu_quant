@@ -4,6 +4,7 @@ import sys
 import requests
 from lxml import etree
 import utility
+from log_manager import logger
 
 
 class MyTest(Hutu):
@@ -95,8 +96,9 @@ class MyTest(Hutu):
         print(t)
 
 
-trade_date = sys.argv[1]
-test = MyTest()
+# trade_date = sys.argv[1]
+# test = MyTest()
 # test.daily_job_hsgt_data_by_10jqka('2019-03-26')
-test.down_hsgt(trade_date)
+# test.down_hsgt(trade_date)
 # test.test1()
+logger.info('test')
