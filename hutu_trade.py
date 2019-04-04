@@ -184,6 +184,13 @@ class HutuTrade():
         select = SelectStock()
         select.select_rise_limit_times(31, 5)
 
+    def select_rise_limit_times_60_5(self):
+        """
+        筛选出最近60天内5板的股票
+        """
+        select = SelectStock()
+        select.select_rise_limit_times(60, 5)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -231,3 +238,5 @@ if __name__ == '__main__':
         hutu_trade.check_hsgt_data(trade_date)
     elif func == 'select_rise_limit_times_31_5':
         hutu_trade.select_rise_limit_times_31_5()
+    elif func == 'select_rise_limit_times_60_5':
+        hutu_trade.select_rise_limit_times_60_5()
