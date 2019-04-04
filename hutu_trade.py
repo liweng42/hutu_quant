@@ -5,6 +5,7 @@ import stock_const as const
 from tushare_fetch import TushareFetch
 from process_stock_data import ProcessStockData
 from emotion import EmotionIndex
+from select_stock import SelectStock
 import sys
 from log_manager import logger
 
@@ -176,6 +177,13 @@ class HutuTrade():
 
         plt.show()
 
+    def select_rise_limit_times_31_5(self):
+        """
+        筛选出最近31天内5板的股票
+        """
+        select = SelectStock()
+        select.select_rise_limit_times(31, 5)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -221,3 +229,5 @@ if __name__ == '__main__':
             sys.exit()
         trade_date = sys.argv[2]
         hutu_trade.check_hsgt_data(trade_date)
+    elif func == 'select_rise_limit_times_31_5':
+        hutu_trade.select_rise_limit_times_31_5()

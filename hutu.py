@@ -29,7 +29,9 @@ class Hutu():
         os.path.join(const.process_data_index_day_path,
                      const.CODE_INDEX_SH + '.csv'),
         'emotion':
-        os.path.join(const.emotion_index_data_root_path, 'emotion_basic.csv')
+        os.path.join(const.emotion_index_data_root_path, 'emotion_basic.csv'),
+        'select':
+        os.path.join(const.select_data_root_path, 'select.csv')
     }
 
     def __init__(self):

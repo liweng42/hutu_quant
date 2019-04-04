@@ -97,3 +97,7 @@ DEBUG_DATA_STOCK_TRADE_CAL = os.path.join(debug_data_root_path, 'stock_trade_cal
 sample_data_root_path = os.path.join(os.getcwd(), 'sample_data')
 # emotion_basic_sample 文件
 SAMPLE_EMOTION_BASIC = os.path.join(sample_data_root_path, 'emotion_basic_sample.csv')
+
+
+# select 数据文件目录
+select_data_root_path = os.path.join(os.getcwd(), 'select_data')
