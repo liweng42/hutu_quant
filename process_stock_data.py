@@ -63,7 +63,7 @@ class ProcessStockData(Hutu):
         # 一定最后处理指数数据
         self.compute_index_indicators()
         # 把所有股票数据文件存入redis
-        self.set_process_data_market_stock_to_redis()
+        # self.set_process_data_market_stock_to_redis()
         # 生成trade_date维度的股票数据文件
         self.only_once_generate_trade_date_day_file()
         print('\n结束时间：%s' % datetime.now(), end='\n')
@@ -82,7 +82,7 @@ class ProcessStockData(Hutu):
             # 一定最后处理指数数据
             self.compute_index_indicators()
             # 把所有股票数据文件存入redis，这里必不可少，因为日k线数据已经更新了
-            self.set_process_data_market_stock_to_redis()
+            # self.set_process_data_market_stock_to_redis()
             # 生成trade_date维度的股票数据文件
             count = 1
             length = len(date_list)
@@ -114,7 +114,7 @@ class ProcessStockData(Hutu):
         # 一定最后处理指数数据
         self.compute_index_indicators()
         # 把所有股票数据文件存入redis，这里必不可少，因为日k线数据已经更新了
-        self.set_process_data_market_stock_to_redis()
+        # self.set_process_data_market_stock_to_redis()
         # 生成trade_date维度的股票数据文件
         self.generate_trade_date_day_file(trade_date)
         print('\n结束时间：%s' % datetime.now(), end='\n')
