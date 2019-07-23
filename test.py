@@ -105,3 +105,4 @@ class MyTest(Hutu):
 
 t = TushareFetch()
 t.test2()
+print('t.test2()')
