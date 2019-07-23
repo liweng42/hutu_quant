@@ -270,8 +270,8 @@ class TushareFetch(Hutu):
         name = '%s.csv' % (ts_code)
         filename = os.path.join(const.origin_data_market_day_path, name)
         df.to_csv(filename, index=False, columns=const.COLUMNS)
-        # print('%s 成功' % name, end='\r')
-        # print('文件：%s' % filename)
+        print('%s 成功' % name, end='\r')
+        print('文件：%s' % filename)
 
     @utility.time_it
     def only_once_hsgt_data(self, end_date=None):
@@ -471,7 +471,7 @@ class TushareFetch(Hutu):
                                         name)
                 # 存在文件追加数据行
                 if os.path.exists(filename):
-                    print('debug ----> %s' % filename)
+                    # print('debug ----> %s' % filename)
                     stock_data = pd.read_csv(filename)
                     # 检查是否存在该日期
                     tmp_df = stock_data[(
@@ -499,6 +499,29 @@ class TushareFetch(Hutu):
             print('接口数据为空！', end='\n')
         print('\n结束时间：%s' % datetime.now(), end='\n')
         print('=====更新股票日线行情 done!=====', end='\n')
+
+    def down_single_stock_day_data(self, ts_code):
+        """
+        下载单个股票从上市以来的全部日线数据
+        """
+        list_date = self.get_single_stock_list_date(ts_code)
+        self.only_once_stock_daily_by_code(
+            ts_code=ts_code, start_date=list_date, end_date=self.today_date)
+
+    def get_single_stock_list_date(self, ts_code):
+        """
+        获取单个股票的上市日期
+        """
+        if not self.debug:
+            df = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
+        else:
+            df = pd.read_csv(const.DEBUG_DATA_STOCK_BASIC)
+        # 查找单行记录
+        df = df[df['ts_code'].str.match(ts_code)]
+        if (len(df) > 0):
+            return str(df['list_date'].values[0])
+        else:
+            return '20050101'
 
     @utility.time_it
     def index_day_drop_duplicates(self):
@@ -543,3 +566,7 @@ class TushareFetch(Hutu):
     def test(self, trade_date):
         new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
         print(new_data)
+
+    def test2(self):
+        self.down_single_stock_day_data('002700.SZ')
+        # print(a)

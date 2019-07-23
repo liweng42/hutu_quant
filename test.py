@@ -101,4 +101,7 @@ class MyTest(Hutu):
 # test.daily_job_hsgt_data_by_10jqka('2019-03-26')
 # test.down_hsgt(trade_date)
 # test.test1()
-logger.info('test')
+# logger.info('test')
+
+t = TushareFetch()
+t.test2()
