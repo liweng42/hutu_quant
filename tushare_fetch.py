@@ -471,6 +471,7 @@ class TushareFetch(Hutu):
                                         name)
                 # 存在文件追加数据行
                 if os.path.exists(filename):
+                    print('debug ----> %s' % filename)
                     stock_data = pd.read_csv(filename)
                     # 检查是否存在该日期
                     tmp_df = stock_data[(
