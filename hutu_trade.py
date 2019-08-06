@@ -1,4 +1,6 @@
 import pandas as pd
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
 import matplotlib.pyplot as plt
 import os
 import stock_const as const
