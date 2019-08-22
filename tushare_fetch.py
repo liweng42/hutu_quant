@@ -263,7 +263,7 @@ class TushareFetch(Hutu):
 
     def only_once_stock_daily_by_code(self, ts_code, start_date, end_date):
         """
-        获取单个股票日线行情，初始化全部股票数据时用
+        获取单个股票日线行情，初始化股票数据时用
         """
         df = self.pro.daily(
             ts_code=ts_code, start_date=start_date, end_date=end_date)
@@ -487,9 +487,11 @@ class TushareFetch(Hutu):
                             filename, index=False, columns=const.COLUMNS)
                         print('%s 数据更新成功' % row['ts_code'], end='\r')
                         # print('文件：%s' % filename)
+                # 不存在该日线文件，则一般为新上市股票，需要新下载日线文件
                 else:
-                    # print('没有相关数据文件: ' % filename)
-                    pass
+                    print('没有日线数据文件: %s' % filename)
+                    print('下载 %s 日线数据文件' % row['ts_code'])
+                    self.down_single_stock_day_data(row['ts_code'])
                 percent = round(1.00 * index / len(df) * 100, 2)
                 print(
                     '进度 : %s [%d/%d]，code:%s' % (
