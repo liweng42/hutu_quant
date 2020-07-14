@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# _*_ coding:utf-8 _*_
+
 import pandas as pd
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()

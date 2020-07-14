@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# _*_ coding:utf-8 _*_
+
 import os
 import stock_const as const
 import pandas as pd
