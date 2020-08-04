@@ -68,13 +68,13 @@ class TushareFetch(Hutu):
                 # 下载股票基础资料
                 self.get_stock_basic()
                 # 下载交易日历
-                self.get_stock_trade_cal(self.init_update_time)
+                self.get_stock_trade_cal(self.last_update_time)
             # 下载股票日K线
-            self.only_once_all_stock_data(self.init_update_time)
+            self.only_once_all_stock_data(self.last_update_time)
             # 下载沪深港通数据
-            self.only_once_hsgt_data(self.init_update_time)
+            self.only_once_hsgt_data(self.last_update_time)
             # 一定最后下载指数数据
-            self.only_once_stock_index_day(self.init_update_time)
+            self.only_once_stock_index_day(self.last_update_time)
         else:
             print('文件已经存在，无需在初始化下载，请直接运行每日更新任务！', end='\n')
         print('\n结束时间：%s' % datetime.now(), end='\n')

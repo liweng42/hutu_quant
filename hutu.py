@@ -5,13 +5,12 @@ import os
 import stock_const as const
 import pandas as pd
 from enum import Enum
-import stock_const as const
 from datetime import datetime
 import time
 import configparser
 import codecs
 import utility
-import log_manager
+from log_manager import logger
 
 
 class Hutu():
@@ -20,8 +19,7 @@ class Hutu():
     # 当天日期
     today_date = time.strftime('%Y%m%d', time.localtime(time.time()))
     # 上次更新日期，默认值
-    last_update_time = '20190308'
-    init_update_time = '20050101'
+    last_update_time = '20200803'
     # 每天更新时间，17点整后开始更新
     begin_down_time = '17:00'
 
@@ -98,7 +96,9 @@ class Hutu():
         根据源文件判断最后更新日期
         """
         if os.path.exists(filename):
+            print('文件：%s' % filename)
             df = pd.read_csv(filename)
+            print(df)
             # 将数据按照交易日期从近到远排序
             df = df.sort_values(by=['trade_date'], ascending=False)
             df = df[0:1]  # 取第一行数据
@@ -143,7 +143,7 @@ class Hutu():
         df = df.sort_values(by=['cal_date'])
         df = df[(df['cal_date'] > 20050101) & (df['is_open'] > 0)]
         start_date = df['cal_date'].values[0]
-        Log.debug(start_date)
+        logger.debug(start_date)
         return str(start_date)
 
     def get_cal_end_date(self):
