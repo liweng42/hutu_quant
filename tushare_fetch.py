@@ -305,8 +305,12 @@ class TushareFetch(Hutu):
             start_year = start_year + 1
             # print(df)
         # 降序
-        hsgt = hsgt.sort_values(by=['trade_date'], ascending=False)
-        hsgt.to_csv(filename, index=False)
+        if hsgt is not None:
+            hsgt = hsgt.sort_values(by=['trade_date'], ascending=False)
+            hsgt.to_csv(filename, index=False)
+            print('\n沪深港通数据获取成功！%s' % datetime.now(), end='\n')
+        else:
+            print('\n沪深港通数据获取失败！%s' % datetime.now(), end='\n')
         print('\n结束时间：%s' % datetime.now(), end='\n')
         print('=====获取沪深港通的日数据 done!=====', end='\n')
 
