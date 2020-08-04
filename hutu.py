@@ -52,7 +52,7 @@ class Hutu():
         """
         cp = configparser.RawConfigParser({
             # 设置配置文件的默认值
-            const.CONFIG_APP_NAME: 'hutu_trade',
+            const.CONFIG_APP_NAME: 'hutu_quant',
             const.CONFIG_LAST_UPDATE_TIME: self.last_update_time,
             const.CONFIG_DEBUG: True
         })

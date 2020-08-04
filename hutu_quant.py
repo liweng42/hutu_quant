@@ -15,8 +15,8 @@ import sys
 from log_manager import logger
 
 
-class HutuTrade():
-    'hutu_trade'
+class HutuQuant():
+    'hutu_quant'
 
     def __init__(self):
         pass
@@ -201,47 +201,47 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('请输入要执行的方法名！')
         sys.exit()
-    hutu_trade = HutuTrade()
+    hutu_quant = HutuQuant()
     func = sys.argv[1]
     if func == 'run_only_once':
-        hutu_trade.run_only_once()
+        hutu_quant.run_only_once()
     elif func == 'run_daily_job':
-        hutu_trade.run_daily_job()
+        hutu_quant.run_daily_job()
     elif func == 'fix_hsgt_data':
         if len(sys.argv) < 3:
             print('请输入trade_date参数值！')
             sys.exit()
         trade_date = sys.argv[2]
-        hutu_trade.fix_hsgt_data(trade_date)
+        hutu_quant.fix_hsgt_data(trade_date)
     elif func == 'repeat_daily_job':
         if len(sys.argv) < 3:
             print('请输入trade_date参数值！')
             sys.exit()
         trade_date = sys.argv[2]
-        hutu_trade.repeat_daily_job(trade_date)
+        hutu_quant.repeat_daily_job(trade_date)
     elif func == 'repeat_emotion_job':
         if len(sys.argv) < 3:
             print('请输入trade_date参数值！')
             sys.exit()
         trade_date = sys.argv[2]
-        hutu_trade.repeat_emotion_job(trade_date)
+        hutu_quant.repeat_emotion_job(trade_date)
     elif func == 'show_emotion_plot':
-        hutu_trade.show_emotion_plot()
+        hutu_quant.show_emotion_plot()
     elif func == 'fix_emotion_data':
         if len(sys.argv) < 3:
             print('请输入trade_date参数值！')
             sys.exit()
         trade_date = sys.argv[2]
-        hutu_trade.fix_emotion_data(trade_date)
+        hutu_quant.fix_emotion_data(trade_date)
     elif func == 'show_hsgt_plot':
-        hutu_trade.show_hsgt_plot()
+        hutu_quant.show_hsgt_plot()
     elif func == 'check_hsgt_data':
         if len(sys.argv) < 3:
             print('请输入trade_date参数值！')
             sys.exit()
         trade_date = sys.argv[2]
-        hutu_trade.check_hsgt_data(trade_date)
+        hutu_quant.check_hsgt_data(trade_date)
     elif func == 'select_rise_limit_times_31_5':
-        hutu_trade.select_rise_limit_times_31_5()
+        hutu_quant.select_rise_limit_times_31_5()
     elif func == 'select_rise_limit_times_60_5':
-        hutu_trade.select_rise_limit_times_60_5()
+        hutu_quant.select_rise_limit_times_60_5()
