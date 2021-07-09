@@ -13,8 +13,8 @@ import utility
 from log_manager import logger
 
 
-class Hutu():
-    '这里是hutu 的抽象类，其他类应该继承自此类'
+class Hutu:
+    """这里是hutu 的抽象类，其他类应该继承自此类"""
 
     # 当天日期
     today_date = time.strftime('%Y%m%d', time.localtime(time.time()))
