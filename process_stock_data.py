@@ -172,7 +172,7 @@ class ProcessStockData(Hutu):
             else:
                 stock_data['ma' + str(ma)] = 0
         # 计算指数平滑移动平均线EMA
-        ema_list = [17, 24, 50]
+        ema_list = [12, 24, 50]
         for ema in ema_list:
             # stock_data['ema' + str(ema)] = stock_data['close'].ewm(span=ema).mean()
             # 调用talib计算指数移动平均线的值
@@ -213,15 +213,15 @@ class ProcessStockData(Hutu):
             stock_data['rise'] = np.where(stock_data['pct_chg'] > 0, 1, 0)
             # 下跌
             stock_data['fall'] = np.where(stock_data['pct_chg'] < 0, 1, 0)
-            # 涨停
+            # 涨停，大于10%也算涨停
             stock_data['rise_limit'] = np.where(
-                round(stock_data["pre_close"] * 1.1, 2) == stock_data['close'],
+                round(stock_data["pre_close"] * 1.1, 2) >= stock_data['close'],
                 1, 0)
             # # 涨停连板
             stock_data['rise_limit_count'] = stock_data['rise_limit']
-            # 跌停
+            # 跌停，大于10%也算跌停
             stock_data['fall_limit'] = np.where(
-                round(stock_data["pre_close"] * 0.9, 2) == stock_data['close'],
+                round(stock_data["pre_close"] * 0.9, 2) <= stock_data['close'],
                 1, 0)
             # # 跌停连板
             stock_data['fall_limit_count'] = stock_data['fall_limit']
