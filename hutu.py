@@ -19,7 +19,7 @@ class Hutu:
     # 当天日期
     today_date = time.strftime('%Y%m%d', time.localtime(time.time()))
     # 上次更新日期，默认值
-    last_update_time = '20200803'
+    last_update_time = '20050101'
     # 每天更新时间，17点整后开始更新
     begin_down_time = '17:00'
 
