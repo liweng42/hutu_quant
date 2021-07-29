@@ -8,7 +8,7 @@ import pandas as pd
 import utility
 import requests
 from lxml import etree
-
+from log_manager import logger
 
 class TushareFetch(Hutu):
     '使用tushare接口获得股票数据，写入原始文件'
@@ -31,26 +31,26 @@ class TushareFetch(Hutu):
         # origin_data 目录
         if not os.path.exists(const.origin_data_basic_path):
             os.makedirs(const.origin_data_basic_path)
-            print('mkdir %s' % const.origin_data_basic_path)
+            logger.info('mkdir %s' % const.origin_data_basic_path)
         if not os.path.exists(const.origin_data_fin_path):
             os.makedirs(const.origin_data_fin_path)
-            print('mkdir %s' % const.origin_data_fin_path)
+            logger.info('mkdir %s' % const.origin_data_fin_path)
         if not os.path.exists(const.origin_data_index_day_path):
             os.makedirs(const.origin_data_index_day_path)
-            print('mkdir %s' % const.origin_data_index_day_path)
+            logger.info('mkdir %s' % const.origin_data_index_day_path)
         if not os.path.exists(const.origin_data_index_week_path):
             os.makedirs(const.origin_data_index_week_path)
-            print('mkdir %s' % const.origin_data_index_week_path)
+            logger.info('mkdir %s' % const.origin_data_index_week_path)
         if not os.path.exists(const.origin_data_market_day_path):
             os.makedirs(const.origin_data_market_day_path)
-            print('mkdir %s' % const.origin_data_market_day_path)
+            logger.info('mkdir %s' % const.origin_data_market_day_path)
         if not os.path.exists(const.origin_data_market_week_path):
             os.makedirs(const.origin_data_market_week_path)
-            print('mkdir %s' % const.origin_data_market_week_path)
+            logger.info('mkdir %s' % const.origin_data_market_week_path)
         if not os.path.exists(const.origin_data_ref_path):
             os.makedirs(const.origin_data_ref_path)
-            print('mkdir %s' % const.origin_data_ref_path)
-        print('origin_data 目录检测完毕！')
+            logger.info('mkdir %s' % const.origin_data_ref_path)
+        logger.info('origin_data 目录检测完毕！')
 
     @utility.time_it
     def run_only_once(self):
@@ -58,8 +58,8 @@ class TushareFetch(Hutu):
         下载初始化数据，注意顺序不要乱，初始化数据以 last_update_time 为准
         第一次执行，且只需运行一次即可
         """
-        print('\n=====TushareFetch run_only_once start=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====TushareFetch run_only_once start=====')
+        logger.info('开始时间：%s' % datetime.now())
         # 判断 origin 目录下的上证指数文件是否存在，不存在则开始初始化下载
         filename = os.path.join(const.origin_data_index_day_path,
                                 const.CODE_INDEX_SH + '.csv')
@@ -76,17 +76,17 @@ class TushareFetch(Hutu):
             # 一定最后下载指数数据
             self.only_once_stock_index_day(self.last_update_time)
         else:
-            print('文件已经存在，无需在初始化下载，请直接运行每日更新任务！', end='\n')
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====TushareFetch run_only_once done!=====', end='\n')
+            logger.info('文件已经存在，无需在初始化下载，请直接运行每日更新任务！')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====TushareFetch run_only_once done!=====')
 
     @utility.time_it
     def run_daily_job(self):
         """
         更新数据，注意顺序不要乱
         """
-        print('\n=====TushareFetch run_daily_job start=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====TushareFetch run_daily_job start=====')
+        logger.info('开始时间：%s' % datetime.now())
         if not self.debug:
             # 更新股票基础资料
             self.get_stock_basic()
@@ -98,7 +98,7 @@ class TushareFetch(Hutu):
         if len(date_list) > 0:
             for date in date_list:
                 # 更新股票数据
-                print('更新日期：%s' % date, end='\n')
+                logger.info('更新日期：%s' % date)
                 self.daily_job_stock_daily_by_date(date)
                 # 下载沪深港通数据
                 self.daily_job_hsgt_data(date)
@@ -110,23 +110,26 @@ class TushareFetch(Hutu):
             self.stock_day_drop_duplicates()
             # 沪深港通数据去重
             # self.hsgt_day_drop_duplicates()
+            logger.info('结束时间：%s' % datetime.now())
+            logger.info('=====TushareFetch run_daily_job done!=====')           
             return True
         else:
-            print('\n没有需要更新的数据', end='\n')
+            logger.info('没有需要更新的数据')
+            logger.info('结束时间：%s' % datetime.now())
+            logger.info('=====TushareFetch run_daily_job done!=====')              
             return False
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====TushareFetch run_daily_job done!=====', end='\n')
+
 
     @utility.time_it
     def repeat_daily_job(self, trade_date):
         """
         重复执行某一天的日常任务，以便有错误或者漏下了数据后重新计算
         """
-        print('\n=====TushareFetch repeat_daily_job start=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====TushareFetch repeat_daily_job start=====')
+        logger.info('开始时间：%s' % datetime.now())
         trade_date = int(trade_date)
         # 更新股票数据
-        print('更新日期：%s' % trade_date, end='\n')
+        logger.info('更新日期：%s' % trade_date)
         self.daily_job_stock_daily_by_date(trade_date)
         # 下载沪深港通数据
         self.daily_job_hsgt_data(trade_date)
@@ -138,16 +141,16 @@ class TushareFetch(Hutu):
         self.stock_day_drop_duplicates()
         # 沪深港通数据去重
         # self.hsgt_day_drop_duplicates()
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====TushareFetch repeat_daily_job done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====TushareFetch repeat_daily_job done!=====')
 
     @utility.time_it
     def get_stock_basic(self):
         """
         获得上市状态的股票列表，只取6个字段
         """
-        print('\n=====获得上市状态的股票列表开始=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====获得上市状态的股票列表开始=====')
+        logger.info('开始时间：%s' % datetime.now())
         df = self.pro.stock_basic(
             list_status='L',
             fields='ts_code,symbol,name,area,industry,list_date')
@@ -158,22 +161,22 @@ class TushareFetch(Hutu):
             columns=[
                 'ts_code', 'symbol', 'name', 'area', 'industry', 'list_date'
             ])
-        print('文件：%s' % const.ORIGIN_DATA_STOCK_BASIC, end='\n')
-        print('结束时间：%s' % datetime.now(), end='\n')
-        print('=====获得上市状态的股票列表开始 done!=====', end='\n')
+        logger.info('文件：%s' % const.ORIGIN_DATA_STOCK_BASIC)
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====获得上市状态的股票列表开始 done!=====')
 
     @utility.time_it
     def get_stock_trade_cal(self, end_date=None):
         """
         获取从开市以来的交易日历
         """
-        print('\n=====获取从开市以来的交易日历=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====获取从开市以来的交易日历=====')
+        logger.info('开始时间：%s' % datetime.now())
         if end_date is None:
             end_date = self.today_date
         df = self.pro.trade_cal(
             exchange='', start_date=const.START_DATE_SH, end_date=end_date)
-        # print(df)
+        # logger.info(df)
         # 降序排列
         df = df.sort_values(by=['cal_date'], ascending=False)
         # 写入交易日历文件
@@ -182,39 +185,39 @@ class TushareFetch(Hutu):
             header=True,
             index=False,
             columns=['exchange', 'cal_date', 'is_open'])
-        # print('文件：%s' % const.ORIGIN_DATA_STOCK_TRADE_CAL)
-        print('结束时间：%s' % datetime.now(), end='\n')
-        print('=====获取从开市以来的交易日历 done!=====', end='\n')
+        # logger.info('文件：%s' % const.ORIGIN_DATA_STOCK_TRADE_CAL)
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====获取从开市以来的交易日历 done!=====')
 
     @utility.time_it
     def only_once_stock_index_day(self, end_date=None):
         """
         获得指数日线行情
         """
-        print('\n=====获得指数日线行情=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====获得指数日线行情=====')
+        logger.info('开始时间：%s' % datetime.now())
         if end_date is None:
             end_date = self.today_date
         start_date = self.get_cal_start_date()
         for index in const.CODE_INDEX_LIST:
             df = self.pro.index_daily(
                 ts_code=index, start_date=start_date, end_date=end_date)
-            # print(df)
+            # logger.info(df)
             filename = os.path.join(const.origin_data_index_day_path,
                                     index + '.csv')
             df.to_csv(
                 filename, header=True, index=False, columns=const.COLUMNS)
-            print('文件：%s' % filename, end='\r')
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====获得指数日线行情 done!=====', end='\n')
+            logger.info('文件：%s' % filename)
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====获得指数日线行情 done!=====')
 
     @utility.time_it
     def only_once_all_stock_data(self, end_date):
         """
         获取全部股票的全部日线
         """
-        print('\n=====拉取全部日线数据=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====拉取全部日线数据=====')
+        logger.info('开始时间：%s' % datetime.now())
         if end_date is None:
             end_date = self.today_date
         if not self.debug:
@@ -225,7 +228,7 @@ class TushareFetch(Hutu):
         # 该接口每分钟最多调用200次，要控制
         max_sec, max_count = 60, 150
         start_time = datetime.utcnow()
-        # print(start_time)
+        # logger.info(start_time)
         for index, row in stock_list.iterrows():
             cur_time = datetime.utcnow()
             c = (cur_time - start_time)
@@ -234,7 +237,7 @@ class TushareFetch(Hutu):
                     # 暂停
                     pause = max_sec - int(c.seconds)
                     for i in range(pause, -1, -1):
-                        print('达到阈值，暂停剩余时间 %s 秒！' % str(i).zfill(2), end='\r')
+                        logger.info('达到阈值，暂停剩余时间 %s 秒！' % str(i).zfill(2))
                         time.sleep(1)
                     start_time = datetime.utcnow()
                     cur_time = datetime.utcnow()
@@ -247,19 +250,19 @@ class TushareFetch(Hutu):
                 cur_time = datetime.utcnow()
                 c = (cur_time - start_time)
                 j = 1
-            # print(row["ts_code"], row['symbol'], row['name'], row["list_date"])
+            # logger.info(row["ts_code"], row['symbol'], row['name'], row["list_date"])
             self.only_once_stock_daily_by_code(
                 ts_code=row["ts_code"],
                 start_date=row["list_date"],
                 end_date=end_date)
             time.sleep(0.2)  # 接口访问之间暂停0.2秒
-            print(
+            logger.info(
                 'code: %s，第%s个/%s秒，共%s个，接口限制：%s 秒内 %s 个' %
                 (row["ts_code"], j, c.seconds, count, max_sec, max_count),
-                end='\r')
+                )
             count = count + 1
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====拉取全部日线数据 done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====拉取全部日线数据 done!=====')
 
     def only_once_stock_daily_by_code(self, ts_code, start_date, end_date):
         """
@@ -270,16 +273,16 @@ class TushareFetch(Hutu):
         name = '%s.csv' % (ts_code)
         filename = os.path.join(const.origin_data_market_day_path, name)
         df.to_csv(filename, index=False, columns=const.COLUMNS)
-        print('%s 成功' % name, end='\r')
-        print('文件：%s' % filename)
+        logger.info('%s 成功' % name)
+        logger.info('文件：%s' % filename)
 
     @utility.time_it
     def only_once_hsgt_data(self, end_date=None):
         """
         获取沪深港通的日数据
         """
-        print('\n=====获取沪深港通的日数据=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====获取沪深港通的日数据=====')
+        logger.info('开始时间：%s' % datetime.now())
         if end_date is None:
             end_date = self.today_date
         end_date_tmp = datetime.strptime(end_date, "%Y%m%d")
@@ -291,7 +294,7 @@ class TushareFetch(Hutu):
             start_date = '%s0101' % start_year
             if start_year == end_date_tmp.year:
                 end_date = end_date_tmp.strftime("%Y%m%d")
-                print(end_date)
+                logger.info(end_date)
             else:
                 end_date = '%s1231' % start_year
             df = self.pro.moneyflow_hsgt(
@@ -301,46 +304,46 @@ class TushareFetch(Hutu):
                 hsgt = df
             else:
                 hsgt = hsgt.append(df)
-            print('start_year: %s' % start_year, end='\n')
+            logger.info('start_year: %s' % start_year)
             start_year = start_year + 1
-            # print(df)
+            # logger.info(df)
         # 降序
         if hsgt is not None:
             hsgt = hsgt.sort_values(by=['trade_date'], ascending=False)
             hsgt.to_csv(filename, index=False)
-            print('\n沪深港通数据获取成功！%s' % datetime.now(), end='\n')
+            logger.info('沪深港通数据获取成功！%s' % datetime.now())
         else:
-            print('\n沪深港通数据获取失败！%s' % datetime.now(), end='\n')
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====获取沪深港通的日数据 done!=====', end='\n')
+            logger.info('沪深港通数据获取失败！%s' % datetime.now())
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====获取沪深港通的日数据 done!=====')
 
     @utility.time_it
     def daily_job_hsgt_data(self, trade_date):
         """
         更新沪深港通的日数据
         """
-        print('\n=====更新沪深港通的日数据=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====更新沪深港通的日数据=====')
+        logger.info('开始时间：%s' % datetime.now())
         filename = const.ORIGIN_DATA_MONEYFLOW_HSGT
         df = pd.read_csv(filename)
         # 升序
         df = df.sort_values(by=['trade_date'])
-        # print(df)
-        # print(df.dtypes)
+        # logger.info(df)
+        # logger.info(df.dtypes)
         # 检查是否存在该日期
         tmp_df = df[(df['trade_date'] == int(trade_date))]
         if (len(tmp_df) <= 0):  # 不存在则追加
             # 暂时不从 tushare 取hsgt数据，该从同花顺抓取，tushare 这部分日数据更新不及时
             # new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
-            # print(new_data)
+            # logger.info(new_data)
             # if (len(new_data) > 0):
             #     new_data['trade_date'] = new_data['trade_date'].astype('int64')
-            #     # print(new_data.dtypes)
+            #     # logger.info(new_data.dtypes)
             #     df = df.append(new_data)
-            #     # print(df)
+            #     # logger.info(df)
             #     # 降序
             #     df = df.sort_values(by=['trade_date'], ascending=False)
-            #     # print(df)
+            #     # logger.info(df)
             #     df.to_csv(filename, index=False)
             date1 = utility.trans_int_data_to_str(trade_date)
             money_data = self.get_hsgt_data_by_10jqka(date1)
@@ -356,16 +359,16 @@ class TushareFetch(Hutu):
             # new_data['trade_date'] = new_data['trade_date'].astype('int64')
             # 插入数据（忽略索引）
             new_df.loc[0] = new_data
-            print(new_df)
-            # print(type(new_df['trade_date']))
+            logger.info(new_df)
+            # logger.info(type(new_df['trade_date']))
             df = df.append(new_df)
             # 降序
             df = df.sort_values(by=['trade_date'], ascending=False)
-            # print(type(df['trade_date']))
-            print(df)
+            # logger.info(type(df['trade_date']))
+            logger.info(df)
             df.to_csv(filename, index=False)
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====更新沪深港通的日数据 done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====更新沪深港通的日数据 done!=====')
 
     def get_hsgt_data_by_10jqka(self, trade_date):
         """
@@ -391,7 +394,7 @@ class TushareFetch(Hutu):
             # # 港股通(深)
             # 'ggt_sz': 0
         }
-        print(money_data)
+        logger.info(money_data)
         # 北向资金
         # north_money = 0
         # 南向资金
@@ -408,16 +411,16 @@ class TushareFetch(Hutu):
         }
         for key in urls.keys():
             r = requests.get(urls[key], headers=headers, timeout=5)
-            # print(r.text)
+            # logger.info(r.text)
             html = etree.HTML(r.text)
             trs = html.xpath('//*[@id="table1"]/table/tbody/tr')
             for tr in trs:
                 if (tr[0].text == trade_date):
-                    # print(tr[1].text)
+                    # logger.info(tr[1].text)
                     s = tr[1].text.replace('亿', '')
                     money_data[key] = round(float(s) * 100, 2)
                     break
-        print(money_data)
+        logger.info(money_data)
         return money_data
 
     @utility.time_it
@@ -425,13 +428,13 @@ class TushareFetch(Hutu):
         """
         更新指数日线行情
         """
-        print('\n===== 更新指数日线行情 trade_date: %s =====' % trade_date, end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('===== 更新指数日线行情 trade_date: %s =====' % trade_date)
+        logger.info('开始时间：%s' % datetime.now())
         if trade_date is None:
             trade_date = self.today_date
         for li in const.CODE_INDEX_LIST:
             df = self.pro.index_daily(ts_code=li, trade_date=trade_date)
-            # print(df)
+            # logger.info(df)
             if (len(df) > 0):
                 filename = os.path.join(const.origin_data_index_day_path,
                                         li + '.csv')
@@ -443,28 +446,28 @@ class TushareFetch(Hutu):
                         stock_data['trade_date'] == int(trade_date))]
                     if (len(tmp_df) <= 0):  # 不存在则追加
                         df.index = [len(stock_data) - 1]  # 索引值计算，不计算也没问题
-                        # print(df)
+                        # logger.info(df)
                         stock_data = df.append(stock_data)
-                        # print(stock_data)
+                        # logger.info(stock_data)
                         stock_data.to_csv(
                             filename, index=False, columns=const.COLUMNS)
-                        print('%s 数据更新成功' % li, end='\r')
-                    # print('文件：%s' % filename)
+                        logger.info('%s 数据更新成功' % li)
+                    # logger.info('文件：%s' % filename)
                 else:
-                    # print('没有相关数据文件: ' % filename)
+                    # logger.info('没有相关数据文件: ' % filename)
                     pass
             else:
-                print('接口数据为空！', end='\n')
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====更新指数日线行情 done!=====', end='\n')
+                logger.info('接口数据为空！')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====更新指数日线行情 done!=====')
 
     @utility.time_it
     def daily_job_stock_daily_by_date(self, trade_date=None):
         """
         更新股票日线行情
         """
-        print('\n===== 更新股票日线行情 trade_date: %s =====' % trade_date, end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('===== 更新股票日线行情 trade_date: %s =====' % trade_date)
+        logger.info('开始时间：%s' % datetime.now())
         if trade_date is None:
             trade_date = self.today_date
         df = self.pro.daily(trade_date=trade_date)
@@ -475,7 +478,7 @@ class TushareFetch(Hutu):
                                         name)
                 # 存在文件追加数据行
                 if os.path.exists(filename):
-                    # print('debug ----> %s' % filename)
+                    # logger.info('debug ----> %s' % filename)
                     stock_data = pd.read_csv(filename)
                     # 检查是否存在该日期
                     tmp_df = stock_data[(
@@ -484,27 +487,27 @@ class TushareFetch(Hutu):
                         copy_df_row = df.loc[[index]]  # 这里是dataframe
                         copy_df_row.index = [len(stock_data) - 1
                                              ]  # 索引值计算，不计算也没问题
-                        # print(copy_df_row)
+                        # logger.info(copy_df_row)
                         stock_data = copy_df_row.append(stock_data)
-                        # print(stock_data)
+                        # logger.info(stock_data)
                         stock_data.to_csv(
                             filename, index=False, columns=const.COLUMNS)
-                        print('%s 数据更新成功' % row['ts_code'], end='\r')
-                        # print('文件：%s' % filename)
+                        logger.info('%s 数据更新成功' % row['ts_code'])
+                        # logger.info('文件：%s' % filename)
                 # 不存在该日线文件，则一般为新上市股票，需要新下载日线文件
                 else:
-                    print('没有日线数据文件: %s' % filename)
-                    print('下载 %s 日线数据文件' % row['ts_code'])
+                    logger.info('没有日线数据文件: %s' % filename)
+                    logger.info('下载 %s 日线数据文件' % row['ts_code'])
                     self.down_single_stock_day_data(row['ts_code'])
                 percent = round(1.00 * index / len(df) * 100, 2)
-                print(
+                logger.info(
                     '进度 : %s [%d/%d]，code:%s' % (
                         (str(percent) + '%', index, len(df), row['ts_code'])),
-                    end='\r')
+                    )
         else:
-            print('接口数据为空！', end='\n')
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====更新股票日线行情 done!=====', end='\n')
+            logger.info('接口数据为空！')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====更新股票日线行情 done!=====')
 
     def down_single_stock_day_data(self, ts_code):
         """
@@ -534,45 +537,45 @@ class TushareFetch(Hutu):
         """
         指数文件去重
         """
-        print('\n=====指数文件去重=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====指数文件去重=====')
+        logger.info('开始时间：%s' % datetime.now())
         self.drop_duplicates(const.origin_data_index_day_path)
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====指数文件去重 done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====指数文件去重 done!=====')
 
     @utility.time_it
     def stock_day_drop_duplicates(self):
         """
         股票文件去重
         """
-        print('\n=====股票文件去重=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====股票文件去重=====')
+        logger.info('开始时间：%s' % datetime.now())
         self.drop_duplicates(const.origin_data_market_day_path)
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====股票文件去重 done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====股票文件去重 done!=====')
 
     @utility.time_it
     def hsgt_day_drop_duplicates(self):
         """
         沪深港通文件去重
         """
-        print('\n=====沪深港通文件去重=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====沪深港通文件去重=====')
+        logger.info('开始时间：%s' % datetime.now())
         self.drop_duplicates(const.origin_data_ref_path)
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====沪深港通文件去重 done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====沪深港通文件去重 done!=====')
 
     def check_hsgt_data(self, trade_date):
         """
         检测沪深港通某日数据是否存在
         """
         new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
-        print(new_data)
+        logger.info(new_data)
 
     def test(self, trade_date):
         new_data = self.pro.query('moneyflow_hsgt', trade_date=trade_date)
-        print(new_data)
+        logger.info(new_data)
 
     def test2(self):
         self.down_single_stock_day_data('002700.SZ')
-        # print(a)
+        # logger.info(a)

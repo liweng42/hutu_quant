@@ -62,7 +62,7 @@ class Hutu:
         self.app_name = self.read_from_config(cp, const.CONFIG_APP_NAME)
         self.debug = utility.str_to_bool(
             self.read_from_config(cp, const.CONFIG_DEBUG))
-        # print(self.debug)
+        # logger.info(self.debug)
         self.last_update_time = self.read_from_config(
             cp, const.CONFIG_LAST_UPDATE_TIME)
 
@@ -96,14 +96,14 @@ class Hutu:
         根据源文件判断最后更新日期
         """
         if os.path.exists(filename):
-            print('文件：%s' % filename)
+            logger.info('文件：%s' % filename)
             df = pd.read_csv(filename)
-            print(df)
+            logger.info(df)
             # 将数据按照交易日期从近到远排序
             df = df.sort_values(by=['trade_date'], ascending=False)
             df = df[0:1]  # 取第一行数据
             return df['trade_date'].values[0]  # 取trade_date列值
-            # print(self.last_update_time)
+            # logger.info(self.last_update_time)
         else:
             return self.last_update_time
 
@@ -117,7 +117,7 @@ class Hutu:
             df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
         df = df[(df['cal_date'] > int(self.last_update_time))
                 & (df['is_open'] > 0)]
-        # print(df)
+        # logger.info(df)
         list = []
         for index, row in df.iterrows():
             list.append(row['cal_date'])
@@ -127,8 +127,8 @@ class Hutu:
             str(datetime.now().date()) + self.begin_down_time, '%Y-%m-%d%H:%M')
         if datetime.now() < d1 and int(self.today_date) in list:
             list.remove(int(self.today_date))
-        # print(list)
-        print('上次更新日期为：%s， 需要更新的日期有：%s' % (self.last_update_time, list))
+        # logger.info(list)
+        logger.info('上次更新日期为：%s， 需要更新的日期有：%s' % (self.last_update_time, list))
         return list
 
     def get_cal_start_date(self):
@@ -139,7 +139,7 @@ class Hutu:
             df = pd.read_csv(const.DEBUG_DATA_STOCK_TRADE_CAL)
         else:
             df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
-        # print(self.debug)
+        # logger.info(self.debug)
         df = df.sort_values(by=['cal_date'])
         df = df[(df['cal_date'] > 20050101) & (df['is_open'] > 0)]
         start_date = df['cal_date'].values[0]
@@ -154,10 +154,10 @@ class Hutu:
             df = pd.read_csv(const.DEBUG_DATA_STOCK_TRADE_CAL)
         else:
             df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
-        # print(self.debug)
+        # logger.info(self.debug)
         df = df[(df['is_open'] > 0)]
         end_date = df['cal_date'].values[0]
-        print(end_date)
+        logger.info(end_date)
         return str(end_date)
 
     def get_cal_open_list(self):
@@ -168,7 +168,7 @@ class Hutu:
             df = pd.read_csv(const.DEBUG_DATA_STOCK_TRADE_CAL)
         else:
             df = pd.read_csv(const.ORIGIN_DATA_STOCK_TRADE_CAL)
-        # print(self.debug)
+        # logger.info(self.debug)
         df = df[(df['cal_date'] > 20050101) & (df['is_open'] > 0)]
         list = []
         for index, row in df.iterrows():
@@ -187,10 +187,10 @@ class Hutu:
                 if os.path.splitext(file)[1] == '.csv':
                     filename = os.path.join(path, file)
                     percent = round(1.00 * count / len(files) * 100, 2)
-                    print(
+                    logger.info(
                         '进度 : %s [%d/%d]，file:%s' % (
                             (str(percent) + '%', count, len(files), file)),
-                        end='\r')
+                        )
                     stock_data = pd.read_csv(filename)
                     # 去重
                     stock_data.drop_duplicates('trade_date', inplace=True)

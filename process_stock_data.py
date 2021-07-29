@@ -8,6 +8,7 @@ import os
 import stock_const as const
 import utility
 from stock_data_repo import StockDataRepo
+from log_manager import logger
 
 
 class ProcessStockData(Hutu):
@@ -27,37 +28,37 @@ class ProcessStockData(Hutu):
         # process_data 目录
         if not os.path.exists(const.process_data_basic_path):
             os.makedirs(const.process_data_basic_path)
-            print('mkdir %s' % const.process_data_basic_path)
+            logger.info('mkdir %s' % const.process_data_basic_path)
         if not os.path.exists(const.process_data_fin_path):
             os.makedirs(const.process_data_fin_path)
-            print('mkdir %s' % const.process_data_fin_path)
+            logger.info('mkdir %s' % const.process_data_fin_path)
         if not os.path.exists(const.process_data_index_day_path):
             os.makedirs(const.process_data_index_day_path)
-            print('mkdir %s' % const.process_data_index_day_path)
+            logger.info('mkdir %s' % const.process_data_index_day_path)
         if not os.path.exists(const.process_data_index_week_path):
             os.makedirs(const.process_data_index_week_path)
-            print('mkdir %s' % const.process_data_index_week_path)
+            logger.info('mkdir %s' % const.process_data_index_week_path)
         if not os.path.exists(const.process_data_market_day_path):
             os.makedirs(const.process_data_market_day_path)
-            print('mkdir %s' % const.process_data_market_day_path)
+            logger.info('mkdir %s' % const.process_data_market_day_path)
         if not os.path.exists(const.process_data_market_week_path):
             os.makedirs(const.process_data_market_week_path)
-            print('mkdir %s' % const.process_data_market_week_path)
+            logger.info('mkdir %s' % const.process_data_market_week_path)
         if not os.path.exists(const.process_data_ref_path):
             os.makedirs(const.process_data_ref_path)
-            print('mkdir %s' % const.process_data_ref_path)
+            logger.info('mkdir %s' % const.process_data_ref_path)
         if not os.path.exists(const.process_data_market_trade_date_day_path):
             os.makedirs(const.process_data_market_trade_date_day_path)
-            print('mkdir %s' % const.process_data_market_trade_date_day_path)
-        print('process_data 目录检测完毕！')
+            logger.info('mkdir %s' % const.process_data_market_trade_date_day_path)
+        logger.info('process_data 目录检测完毕！')
 
     @utility.time_it
     def run_only_once(self):
         """
         初始化处理所有数据
         """
-        print('\n=====ProcessStockData run_only_once start=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====ProcessStockData run_only_once start=====')
+        logger.info('开始时间：%s' % datetime.now())
         # 计算一般指标数据
         self.compute_stock_indicators()
         # 一定最后处理指数数据
@@ -66,8 +67,8 @@ class ProcessStockData(Hutu):
         # self.set_process_data_market_stock_to_redis()
         # 生成trade_date维度的股票数据文件
         self.only_once_generate_trade_date_day_file()
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====ProcessStockData run_only_once done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====ProcessStockData run_only_once done!=====')
 
     @utility.time_it
     def run_daily_job(self):
@@ -86,19 +87,19 @@ class ProcessStockData(Hutu):
             # 生成trade_date维度的股票数据文件
             count = 1
             length = len(date_list)
-            print('\n=====generate_trade_date_day_file start=====', end='\n')
+            logger.info('=====generate_trade_date_day_file start=====')
             for date in date_list:
                 self.generate_trade_date_day_file(date)
                 percent = round(1.00 * count / length * 100, 2)
-                print(
+                logger.info(
                     '计算日期：%s, 进度 : %s [%d/%d]' % (date, str(percent) + '%',
                                                   count, length),
-                    end='\r')
+                    )
                 count = count + 1
-            print('\n=====generate_trade_date_day_file end=====', end='\n')
+            logger.info('=====generate_trade_date_day_file end=====')
             return True
         else:
-            print('\n没有需要处理的数据', end='\n')
+            logger.info('没有需要处理的数据')
             return False
 
     @utility.time_it
@@ -106,8 +107,8 @@ class ProcessStockData(Hutu):
         """
         重复执行日常任务，处理参数日期的所有数据，本方法方便执行漏掉的日期
         """
-        print('\n=====ProcessStockData repeat_daily_job start=====', end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('=====ProcessStockData repeat_daily_job start=====')
+        logger.info('开始时间：%s' % datetime.now())
         trade_date = int(trade_date)
         # 计算一般指标数据
         self.compute_stock_indicators()
@@ -117,17 +118,17 @@ class ProcessStockData(Hutu):
         # self.set_process_data_market_stock_to_redis()
         # 生成trade_date维度的股票数据文件
         self.generate_trade_date_day_file(trade_date)
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print('=====ProcessStockData repeat_daily_job done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====ProcessStockData repeat_daily_job done!=====')
 
     def set_process_data_market_stock_to_redis(self):
         """
         将所有process_data_market_day股票日K线统统存入redis
         """
-        print(
+        logger.info(
             '\n=====set_process_data_market_stock_to_redis start=====',
             end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('开始时间：%s' % datetime.now())
         if not self.debug:
             stock_list = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
         else:
@@ -138,13 +139,13 @@ class ProcessStockData(Hutu):
         for index, row in stock_list.iterrows():
             sdr.set_process_data_market_day_data(row['ts_code'])
             percent = round(1.00 * count / length * 100, 2)
-            print(
+            logger.info(
                 '进度 : %s [%d/%d]' % (str(percent) + '%', count, length),
-                end='\r')
+                )
             count = count + 1
-        print('\n结束时间：%s' % datetime.now(), end='\n')
-        print(
-            '=====set_process_data_market_stock_to_redis done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info(
+            '=====set_process_data_market_stock_to_redis done!=====')
 
     def compute_indicators(self, stock_data, is_index):
         """
@@ -154,7 +155,7 @@ class ProcessStockData(Hutu):
         # stock_data = stock_data.set_index('date', inplace=True)
         # 将数据按照交易日期从远到近排序
         stock_data = stock_data.sort_values(by=['trade_date'])
-        # print(stock_data)
+        # logger.info(stock_data)
         close = [float(x) for x in stock_data['close']]
         # 分别计算5日、20日、60日 120日 250日的移动平均线
         ma_list = [5, 20, 60, 120, 250]
@@ -259,24 +260,24 @@ class ProcessStockData(Hutu):
         """
         生成以trade_date维度的文件，即每日一个股票文件，包含当日交易的所有股票数据
         """
-        print(
+        logger.info(
             '\n=====only_once_generate_trade_date_day_file start=====',
             end='\n')
-        print('开始时间：%s' % datetime.now(), end='\n')
+        logger.info('开始时间：%s' % datetime.now())
         date_list = self.get_cal_open_list()
         count = 1
         length = len(date_list)
         for date in date_list:
             self.generate_trade_date_day_file(date)
             percent = round(1.00 * count / length * 100, 2)
-            print(
+            logger.info(
                 '计算日期：%s, 进度 : %s [%d/%d]' % (date, str(percent) + '%', count,
                                               length),
-                end='\r')
+                )
             count = count + 1
-        print(
-            '\n=====only_once_generate_trade_date_day_file end=====', end='\n')
-        print('结束时间：%s' % datetime.now(), end='\n')
+        logger.info(
+            '\n=====only_once_generate_trade_date_day_file end=====')
+        logger.info('结束时间：%s' % datetime.now())
 
     def generate_trade_date_day_file(self, trade_date):
         """
@@ -292,12 +293,12 @@ class ProcessStockData(Hutu):
         # 读取处理过的第一个文件，要文件结构而已，此时的文件包含计算过的数据指标列
         sdr = StockDataRepo()
         tmp_df = sdr.get_process_data_market_day_data('000001.SZ')
-        # print(tmp_df)
+        # logger.info(tmp_df)
         # filename = os.path.join(const.process_data_market_day_path,  '000001.SZ.csv')
         # tmp_df = pd.read_csv(filename)
-        # print(tmp_df)
+        # logger.info(tmp_df)
         tmp_df.drop(tmp_df.index, inplace=True)
-        # print(tmp_df)
+        # logger.info(tmp_df)
         for index, row in stock_list.iterrows():
             # filename = os.path.join(const.process_data_market_day_path, row["ts_code"] + '.csv')
             # if os.path.exists(filename):
@@ -305,8 +306,8 @@ class ProcessStockData(Hutu):
             #     df = df[(df['trade_date'] == int(trade_date))]
             #     if (len(df) > 0):
             #         tmp_df = tmp_df.append(df)
-            #         # print(tmp_df)
-            #         # print('文件：%s' % filename, end='\r')
+            #         # logger.info(tmp_df)
+            #         # logger.info('文件：%s' % filename)
             df = sdr.get_process_data_market_day_data(row["ts_code"])
             if df is not None:
                 df = df[(df['trade_date'] == int(trade_date))]
@@ -317,15 +318,15 @@ class ProcessStockData(Hutu):
             str(trade_date) + '.csv')
         if (len(tmp_df) > 0):
             tmp_df.to_csv(p_filename, index=False)
-            print('\n文件：%s' % p_filename, end='\n')
+            logger.info('文件：%s' % p_filename)
 
     @utility.time_it
     def compute_index_indicators(self):
         """
         计算各指数常见指标，读取原始数据文件，计算后输出到处理后的文件
         """
-        print('\n=====计算指数相关指标=====', end='\n')
-        print('开始时间：%s' % datetime.now())
+        logger.info('=====计算指数相关指标=====')
+        logger.info('开始时间：%s' % datetime.now())
         count = 1
         for li in const.CODE_INDEX_LIST:
             o_filename = os.path.join(const.origin_data_index_day_path,
@@ -337,16 +338,16 @@ class ProcessStockData(Hutu):
                                                len(const.CODE_INDEX_LIST),
                                                True)
             count = count + 1
-        print('结束时间：%s' % datetime.now())
-        print('=====计算指数日线相关指标 done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====计算指数日线相关指标 done!=====')
 
     @utility.time_it
     def compute_stock_indicators(self):
         """
         计算股票常见指标
         """
-        print('\n=====计算股票常见指标=====', end='\n')
-        print('开始时间：%s' % datetime.now())
+        logger.info('=====计算股票常见指标=====')
+        logger.info('开始时间：%s' % datetime.now())
         if not self.debug:
             stock_list = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
         else:
@@ -361,8 +362,8 @@ class ProcessStockData(Hutu):
                                                row["ts_code"], count,
                                                len(stock_list), False)
             count = count + 1
-        print('结束时间：%s' % datetime.now())
-        print('=====计算股票常见指标 done!=====', end='\n')
+        logger.info('结束时间：%s' % datetime.now())
+        logger.info('=====计算股票常见指标 done!=====')
 
     def show_compute_index_indicators(self, o_filename, p_filename, code,
                                       count, length, is_index):
@@ -375,10 +376,10 @@ class ProcessStockData(Hutu):
             columns = const.COLUMNS.extend(const.INDICATOR_COLUMNS)
             stock_data.to_csv(p_filename, index=False, columns=columns)
         percent = round(1.00 * count / length * 100, 2)
-        print(
+        logger.info(
             '进度 : %s [%d/%d]，code:%s' % (
                 (str(percent) + '%', count, length, code)),
-            end='\r')
+            )
 
     def trans_day2week(self, code):
         """
@@ -391,7 +392,7 @@ class ProcessStockData(Hutu):
         stock_data['date'] = pd.to_datetime(
             stock_data['trade_date'], format='%Y%m%d')
         stock_data.set_index('date', inplace=True)
-        # print(stock_data)
+        # logger.info(stock_data)
         # stock_data.info()
         period_stock_data = stock_data.resample(period_type, how='last')
         period_stock_data['open'] = stock_data['open'].resample(
@@ -414,7 +415,7 @@ class ProcessStockData(Hutu):
         period_stock_data = period_stock_data[
             period_stock_data['ts_code'].notnull()]
         period_stock_data.reset_index(inplace=True)
-        # print(period_stock_data)
+        # logger.info(period_stock_data)
         filename = './week/%s' % name
         period_stock_data.to_csv(
             filename,
@@ -430,5 +431,5 @@ class ProcessStockData(Hutu):
         """
         stock_list = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
         for index, row in stock_list.iterrows():
-            print(row["ts_code"], row['symbol'], row['name'], row["list_date"])
+            logger.info(row["ts_code"], row['symbol'], row['name'], row["list_date"])
             self.trans_day2week(row['symbol'])

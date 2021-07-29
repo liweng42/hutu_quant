@@ -26,14 +26,14 @@ class SelectStock(Hutu):
         # select_data 目录
         if not os.path.exists(const.select_data_root_path):
             os.makedirs(const.select_data_root_path)
-            print('mkdir %s' % const.select_data_root_path)
+            logger.info('mkdir %s' % const.select_data_root_path)
         logger.debug('select_data 目录检测完毕！')
 
     def select_rise_limit_times(self, duration_days=31, times=5):
         """
         找出过去duration_days天内连板数大于等于times次的股票
         """
-        logger.info('\n=====找出过去duration_days天内连板数大于等于times次的股票=====')
+        logger.info('=====找出过去duration_days天内连板数大于等于times次的股票=====')
         logger.info('开始时间：%s' % datetime.now())
         if not self.debug:
             stock_list = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
@@ -41,11 +41,11 @@ class SelectStock(Hutu):
             stock_list = pd.read_csv(const.DEBUG_DATA_STOCK_BASIC)
         count = 1
         df = pd.DataFrame(columns=['ts_code'])
-        # print(df)
+        # logger.info(df)
         p_filename = 'select_rise_limit_times_%s_%s.csv' % (duration_days,
                                                             times)
         p_filename = os.path.join(const.select_data_root_path, p_filename)
-        # print(p_filename)
+        # logger.info(p_filename)
         for index, row in stock_list.iterrows():
             o_filename = os.path.join(const.process_data_market_day_path,
                                       row["ts_code"] + '.csv')
@@ -64,16 +64,16 @@ class SelectStock(Hutu):
                     df = df.append(
                         pd.Series([code], index=['ts_code']),
                         ignore_index=True)
-                    # print(df)
+                    # logger.info(df)
                 # logger.debug(len(tmp[0]))
             percent = round(1.00 * count / length * 100, 2)
-            print(
+            logger.info(
                 '进度 : %s [%d/%d]，code:%s' % (
                     (str(percent) + '%', count, length, code)),
-                end='\r')
+                )
 
             count = count + 1
-        # print(df)
+        # logger.info(df)
         df.to_csv(p_filename, index=False)
         logger.info('结束时间：%s' % datetime.now())
         logger.info('=====找出过去duration_days天内连板数大于等于times次的股票 done!=====')

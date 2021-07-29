@@ -1,5 +1,5 @@
 import time
-
+from log_manager import logger
 
 def time_it(func):
     def timed(*args):
@@ -13,8 +13,8 @@ def time_it(func):
 
         name = func.__name__
         arg_str = ', '.join(repr(arg) for arg in args)
-        print("{n}({a})".format(n=name, a=arg_str))
-        print("elapsed time: {:>02d}:{:>02d}:{:>02d}".format(
+        logger.info("{n}({a})".format(n=name, a=arg_str))
+        logger.info("elapsed time: {:>02d}:{:>02d}:{:>02d}".format(
             hours, minutes, seconds))
         return result
 

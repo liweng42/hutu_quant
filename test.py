@@ -10,7 +10,7 @@ from log_manager import logger
 class MyTest(Hutu):
     def a(self):
         self.last_update_time = 20190315
-        print(self.last_update_time)
+        logger.info(self.last_update_time)
 
     def down_hsgt(self, trade_date):
         t = TushareFetch()        
@@ -31,13 +31,13 @@ class MyTest(Hutu):
         }
         r = requests.get(
             'http://data.10jqka.com.cn/hgt/sgtb/', headers=headers, timeout=3)
-        # print(r.text)
+        # logger.info(r.text)
         html = etree.HTML(r.text)
         trs = html.xpath('//*[@id="table1"]/table/tbody/tr')
         for tr in trs:
-            print(tr[0].text)
+            logger.info(tr[0].text)
             # for td in tr:
-            #     print(td.text)
+            #     logger.info(td.text)
 
     def daily_job_hsgt_data_by_10jqka(self, trade_date):
         """
@@ -63,7 +63,7 @@ class MyTest(Hutu):
             # # 港股通(深)
             # 'ggt_sz': 0
         }
-        print(money_data)
+        logger.info(money_data)
         # 北向资金
         # north_money = 0
         # 南向资金
@@ -80,20 +80,20 @@ class MyTest(Hutu):
         }
         for key in urls.keys():
             r = requests.get(urls[key], headers=headers, timeout=5)
-            # print(r.text)
+            # logger.info(r.text)
             html = etree.HTML(r.text)
             trs = html.xpath('//*[@id="table1"]/table/tbody/tr')
             for tr in trs:
                 if (tr[0].text == trade_date):
-                    # print(tr[1].text)
+                    # logger.info(tr[1].text)
                     s = tr[1].text.replace('亿', '')
                     money_data[key] = round(float(s) * 100, 2)
                     break               
-        print(money_data)
+        logger.info(money_data)
 
     def test1(self):
         t = utility.trans_int_data_to_str(20190326)
-        print(t)
+        logger.info(t)
 
 
 # trade_date = sys.argv[1]
@@ -105,4 +105,4 @@ class MyTest(Hutu):
 
 t = TushareFetch()
 t.test2()
-print('t.test2()')
+logger.info('t.test2()')

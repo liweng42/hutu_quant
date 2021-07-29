@@ -21,7 +21,7 @@ class LogManager():
 
         rf_handler = logging.handlers.TimedRotatingFileHandler(
             './log/log.log',
-            when='midnight',
+            when='D',
             interval=1,
             backupCount=7,
             atTime=datetime.time(0, 0, 0, 0))

@@ -8,7 +8,7 @@ import pandas as pd
 import utility
 import requests
 from lxml import etree
-
+from log_manager import logger
 
 # tushare 要求的api token
 api_tokens = ([
@@ -19,6 +19,6 @@ for token in api_tokens:
     pro = ts.pro_api()
 
     df = pro.daily(trade_date='20200325')
-    print(token)
-    print(df)
+    logger.info(token)
+    logger.info(df)
     time.sleep(3)  # 接口访问之间暂停 3 秒
