@@ -5,7 +5,7 @@ import requests
 from lxml import etree
 import utility
 from log_manager import logger
-
+import datetime
 
 class MyTest(Hutu):
     def a(self):
@@ -103,6 +103,9 @@ class MyTest(Hutu):
 # test.test1()
 # logger.info('test')
 
-t = TushareFetch()
-t.test2()
-logger.info('t.test2()')
+# t = TushareFetch()
+# t.test2()
+# logger.info('t.test2()')
+
+log_filename = '%d-%d-%d' % (datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day)
+print(log_filename)

@@ -19,25 +19,33 @@ class LogManager():
         sh_handler.setFormatter(
             logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 
-        rf_handler = logging.handlers.TimedRotatingFileHandler(
-            './log/log.log',
-            when='D',
-            interval=1,
-            backupCount=7,
-            atTime=datetime.time(0, 0, 0, 0))
-        rf_handler.setLevel(logging.INFO)
-        rf_handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+        # rf_handler = logging.handlers.TimedRotatingFileHandler(
+        #     './log/log.log',
+        #     when='D',
+        #     interval=1,
+        #     backupCount=7,
+        #     atTime=datetime.time(0, 0, 0, 0))
+        # rf_handler.setLevel(logging.INFO)
+        # rf_handler.setFormatter(
+        #     logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 
-        f_handler = logging.FileHandler('./log/error.log')
-        f_handler.setLevel(logging.ERROR)
+        log_filename = '%d-%d-%d' % (datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day)
+        f_handler = logging.FileHandler('./log/%s.log' % log_filename)
+        f_handler.setLevel(logging.INFO)
         f_handler.setFormatter(
             logging.Formatter(
                 "%(asctime)s - %(levelname)s - %(filename)s[:%(lineno)d] - %(message)s"
             ))
+
+        error_f_handler = logging.FileHandler('./log/error.log')
+        error_f_handler.setLevel(logging.ERROR)
+        error_f_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - %(levelname)s - %(filename)s[:%(lineno)d] - %(message)s"
+            ))
         self.logger.addHandler(sh_handler)
-        self.logger.addHandler(rf_handler)
         self.logger.addHandler(f_handler)
+        self.logger.addHandler(error_f_handler)
 
     def debug(self, msg):
         self.logger.debug(msg)
