@@ -143,7 +143,6 @@ class TushareFetch(Hutu):
         logger.info('结束时间：%s' % datetime.now())
         logger.info('=====TushareFetch repeat_daily_job done!=====')
 
-    @utility.time_it
     def get_stock_basic(self):
         """
         获得上市状态的股票列表，只取6个字段
@@ -164,7 +163,6 @@ class TushareFetch(Hutu):
         logger.info('结束时间：%s' % datetime.now())
         logger.info('=====获得上市状态的股票列表开始 done!=====')
 
-    @utility.time_it
     def get_stock_trade_cal(self, end_date=None):
         """
         获取从开市以来的交易日历
@@ -209,7 +207,7 @@ class TushareFetch(Hutu):
         logger.info('结束时间：%s' % datetime.now())
         logger.info('=====获得指数日线行情 done!=====')
 
-    def only_once_all_stock_data(self, end_date):
+    def only_once_all_stock_data(self, end_date=None):
         """
         获取全部股票的全部日线
         """
