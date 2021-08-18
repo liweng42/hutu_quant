@@ -189,7 +189,6 @@ class TushareFetch(Hutu):
         logger.info('结束时间：%s' % datetime.now())
         logger.info('=====获取从开市以来的交易日历 done!=====')
 
-    @utility.time_it
     def only_once_stock_index_day(self, end_date=None):
         """
         获得指数日线行情
@@ -211,7 +210,6 @@ class TushareFetch(Hutu):
         logger.info('结束时间：%s' % datetime.now())
         logger.info('=====获得指数日线行情 done!=====')
 
-    @utility.time_it
     def only_once_all_stock_data(self, end_date):
         """
         获取全部股票的全部日线
@@ -276,7 +274,7 @@ class TushareFetch(Hutu):
         logger.info('%s 成功' % name)
         logger.info('文件：%s' % filename)
 
-    @utility.time_it
+
     def only_once_hsgt_data(self, end_date=None):
         """
         获取沪深港通的日数据
