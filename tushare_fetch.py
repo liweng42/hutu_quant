@@ -52,7 +52,6 @@ class TushareFetch(Hutu):
             logger.info('mkdir %s' % const.origin_data_ref_path)
         logger.info('origin_data 目录检测完毕！')
 
-    @utility.time_it
     def run_only_once(self):
         """
         下载初始化数据，注意顺序不要乱，初始化数据以 last_update_time 为准
