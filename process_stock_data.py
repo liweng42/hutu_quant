@@ -126,8 +126,8 @@ class ProcessStockData(Hutu):
         将所有process_data_market_day股票日K线统统存入redis
         """
         logger.info(
-            '\n=====set_process_data_market_stock_to_redis start=====',
-            end='\n')
+            '=====set_process_data_market_stock_to_redis start=====',
+            )
         logger.info('开始时间：%s' % datetime.now())
         if not self.debug:
             stock_list = pd.read_csv(const.ORIGIN_DATA_STOCK_BASIC)
@@ -261,8 +261,8 @@ class ProcessStockData(Hutu):
         生成以trade_date维度的文件，即每日一个股票文件，包含当日交易的所有股票数据
         """
         logger.info(
-            '\n=====only_once_generate_trade_date_day_file start=====',
-            end='\n')
+            '=====only_once_generate_trade_date_day_file start=====',
+            )
         logger.info('开始时间：%s' % datetime.now())
         date_list = self.get_cal_open_list()
         count = 1
@@ -275,8 +275,7 @@ class ProcessStockData(Hutu):
                                               length),
                 )
             count = count + 1
-        logger.info(
-            '\n=====only_once_generate_trade_date_day_file end=====')
+        logger.info('=====only_once_generate_trade_date_day_file end=====')
         logger.info('结束时间：%s' % datetime.now())
 
     def generate_trade_date_day_file(self, trade_date):
