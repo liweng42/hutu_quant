@@ -25,6 +25,7 @@ class HutuQuant():
         """
         初始化下载形成origin文件，初始化处理计算各个指标形成process文件，初始化计算emotion指标形成emotion文件
         """
+        logger.info('')  # 插入一行空行日志
         logger.info('run_only_once')
         t = TushareFetch()
         t.run_only_once()
@@ -47,6 +48,7 @@ class HutuQuant():
         #     if updated:
         #         e = EmotionIndex()
         #         e.run_daily_job()
+        logger.info('')  # 插入一行空行日志
         logger.info('run_daily_job start')
         logger.info('TushareFetch run_daily_job start')
         t = TushareFetch()
