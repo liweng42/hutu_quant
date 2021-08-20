@@ -98,7 +98,7 @@ class Hutu:
         if os.path.exists(filename):
             logger.info('文件：%s' % filename)
             df = pd.read_csv(filename)
-            logger.info(df)
+            # logger.info(df)
             # 将数据按照交易日期从近到远排序
             df = df.sort_values(by=['trade_date'], ascending=False)
             df = df[0:1]  # 取第一行数据
